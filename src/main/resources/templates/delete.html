@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<!-- library フラグメントの定義（JavaScript／CSS） -->
+	<th:block th:fragment="library">
+		<link rel="stylesheet" th:href="@{/css/main.css}">
+	</th:block>
+
+	<!--	main フラグメントの定義（メインコンテンツ）	-->
+	<div th:fragment="main">
+		<div class="header border-bottom">
+			<h1 class="h2">[[${title}]]</h1>
+		</div>
+		<!--	一覧表示	-->
+		<div>
+			<div class="center">
+				<div class="flex margin_1em">
+					<div class="guide">[[${guide}]]</div>
+					<form id="cancel" method="post" th:action="@{${cancel_url}}">
+						<input type="hidden" name="id" th:value="${id}" />
+						<input type="hidden" name="date" th:value="${date}" />
+						<button form="cancel" type="submit" class="btn btn-primary">
+							キャンセル
+						</button>
+					</form>
+					<form id="delete" method="post" th:action="@{${delete_url}}">
+						<input type="hidden" name="id" th:value="${id}" />
+						<input type="hidden" name="date" th:value="${date}" />
+						<button form="delete" type="submit" class="btn btn-primary bg_red">
+							削除
+						</button>
+					</form>
+				</div>
+			</div>
+			<table class="table table-striped table-bordered table-hover" th:object="${object}">
+				<thead class="thead-light">
+					<tr>
+						<th th:each="label_Set : ${label_Set_List}" class="th-width"
+														th:width="${label_Set.value * 1.5} + '%'">
+							[[${label_Set.name}]]
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>[[*{id}]]</td>
+						<td>[[*{date}]]</td>
+						<td>[[*{subject}]]</td>
+						<td>[[*{apply}]]</td>
+						<td class="num3">[[*{income}]]</td>
+						<td class="num3">[[*{spending}]]</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<br>
+		<a th:href="@{/main}">メインページへ</a>
+	</div>
+
+</html>

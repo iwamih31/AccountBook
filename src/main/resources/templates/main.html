@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<!-- ページタイトル -->
+	<title th:text="${title ?: _}">CareRecord</title>
+
+	<!-- CSS 読込	-->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+	<link rel="stylesheet" th:href="@{/css/common.css}">
+</head>
+	<body>
+		<div id="main">
+			<!-- タイトル表示 -->
+			<div class="header border-bottom">
+				<h1 class="h2">[[${title}]]</h1>
+			</div>
+			<!-- コンテンツ -->
+			<div class="center margin_1em main">
+				<nav class="vertical">
+					<a th:href="@{/AccountBook/Daily}">
+						<button type="button" class="btn btn-primary">再開</button>
+					</a>
+					<div class="shutdown">
+						<button form="shutdown" type="submit" class="btn btn-primary bg_red">
+							アプリを終了する
+						</button>
+					</div>
+				</nav>
+				<form id="shutdown" method="post" action="/shutdown"></form>
+			</div>
+		</div>
+	</body>
+</html>

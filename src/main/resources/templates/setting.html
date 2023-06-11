@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<!-- library フラグメントの定義（JavaScript／CSS） -->
+	<th:block th:fragment="library">
+		<link rel="stylesheet" th:href="@{/css/user.css}">
+	</th:block>
+
+	<!--	main フラグメントの定義（メインコンテンツ）	-->
+	<div th:fragment="main">
+		<div class="header border-bottom">
+			<h1 class="h2">[[${title}]]</h1>
+		</div>
+		<div class="margin_1em">
+			<nav>
+				<a th:href="@{${req} + '/UserSetting'}">
+					<button type="button" class="btn btn-primary">利用者設定</button>
+				</a>
+				<a th:href="@{${req} + '/OfficeSetting'}">
+					<button type="button" class="btn btn-primary">事業所設定</button>
+				</a>
+			</nav>
+		</div>
+		<br>
+		<a th:href="@{${req} + '/main'}">メインページへ</a>
+	</div>
+</html>

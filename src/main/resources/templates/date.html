@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<!-- library フラグメントの定義（JavaScript／CSS） -->
+	<th:block th:fragment="library">
+		<link rel="stylesheet" th:href="@{/css/user.css}">
+	</th:block>
+
+	<!--	main フラグメントの定義（メインコンテンツ）	-->
+	<div th:fragment="main">
+		<div class="header border-bottom">
+			<h1 class="h2">[[${title}]]</h1>
+		</div>
+		<!--	一覧表示	-->
+		<div class="center">
+			<div class="flex margin_1em">
+				<form id="input" method="post" th:action="@{${url}}">
+					<label for="date">[[${label}]]</label>
+					<input type="date" name="date" th:value="${date}">
+					<button form="input" type="submit" class="btn btn-primary parts">
+						決定
+					</button>
+				</form>
+			</div>
+		</div>
+		<br>
+		<a th:href="@{/main}">メインページへ</a>
+	</div>
+
+</html>

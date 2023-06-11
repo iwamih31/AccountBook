@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="setting">
+
+	<!-- library フラグメントの定義（JavaScript／CSS） -->
+	<th:block th:fragment="library">
+		<link rel="stylesheet" th:href="@{/css/setting.css}">
+	</th:block>
+
+	<!--	main フラグメントの定義（メインコンテンツ）	-->
+	<div th:fragment="main" class="officeSetting">
+		<div class="header border-bottom">
+			<h1 class="h2">[[${title}]]</h1>
+		</div>
+		<!--	一覧表示	-->
+		<div>
+			<div>
+				<a th:href="@{${req} + '/OfficeInsert'}">
+					<button type="button" class="btn btn-primary margin_1em">
+						新しい項目を追加する
+					</button>
+				</a>
+				<div th:if="${message}" class="alert arert-success">[[${message}]]</div>
+			</div>
+			<table class="vertical font-size-x-large">
+				<th:block th:each="office : ${officeList}" th:object="${office}">
+					<tr>
+						<td>
+							[[*{id}]].　
+						</td>
+						<td>
+							[[*{item_name}]]
+						</td>
+						<td>
+							：[[*{item_value}]]　
+						</td>
+						<td>
+							<form method="post" th:action="@{${req} + '/OfficeUpdate'}">
+								<input type="hidden" name="id" th:value="*{id}" />
+								<button type="submit" class="btn btn-primary">
+									編集
+								</button>
+							</form>
+						</td>
+					</tr>
+				</th:block>
+			</table>
+		</div>
+		<br>
+		<a th:href="@{/main}">メインページへ</a>
+	</div>
+
+</html>
