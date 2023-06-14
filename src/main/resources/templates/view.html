@@ -25,6 +25,9 @@
 				<a th:href="@{${req} + '/Daily'}">
 					<button type="button" class="btn btn-primary">出納帳</button>
 				</a>
+				<a th:href="@{${req} + '/Output}">
+					<button type="button" class="btn btn-primary">一覧</button>
+				</a>
 				<a th:href="@{${req} + '/Office'}">
 					<button type="button" class="btn btn-primary">事業所情報</button>
 				</a>
@@ -32,7 +35,7 @@
 					<button type="button" class="btn btn-primary">設定</button>
 				</a>
 				<form method="post" action="/shutdown">
-					<button type="submit" class="btn btn-primary">終了する</button>
+					<button type="submit" class="btn btn-primary bg_red">終了する</button>
 				</form>
 			</nav>
 		</div>

@@ -154,6 +154,16 @@ nav button,
 	font-size: 1.3em;
 }
 
+.result {
+	display: inline-flex;
+	border: solid blue thin;
+	border-radius: 0.2em;
+	padding: 0.2em;
+	margin: 0.2em;
+	margin-top: 0.3em;
+	font-size: 1.3em;
+}
+
 .padding_0{
 	padding: 0 !important;
 }
@@ -164,4 +174,23 @@ nav button,
 
 .alert {
 	margin: 0
+}
+
+.cash td,
+.cash input
+ {
+	text-align: right;
+	max-width: 4em;
+}
+
+.cash th {
+	text-align: center;
+}
+
+.width_Max {
+	width: 100%;
+}
+
+.table input {
+	width: 100%;
 }

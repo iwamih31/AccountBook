@@ -244,7 +244,7 @@ public class AccountBookController {
 	public String daily_Date(
 			@RequestParam("date") String date,
 			Model model) {
-		if (date == null) date = service.today().toString();
+//		if (date == null) date = service.today().toString();
 		add_View_Data_(model, "date", "日付選択");
 		model.addAttribute("date", date);
 		model.addAttribute("label", "日付を選んでください");
@@ -252,6 +252,40 @@ public class AccountBookController {
 		return "view";
 	}
 
+	@PostMapping("/DailyCash")
+	public String daily_Cash(
+			@RequestParam("date") String date,
+			Model model) {
+		add_View_Data_(model, "cash", "現金残高入力");
+		model.addAttribute("date", date);
+		model.addAttribute("cash", service.cash(date));
+		model.addAttribute("label_Set_List", LabelSet.cash_Set);
+		return "view";
+	}
+
+	@PostMapping("/DailyCashResult")
+	public String dailyCashResult(
+			@RequestParam("post_date") String date,
+			@ModelAttribute("cash") Cash cash,
+			Model model) {
+		add_View_Data_(model, "cashResult", "現金残高確認");
+		model.addAttribute("date", date);
+		model.addAttribute("total", service.cash_Total(cash));
+		model.addAttribute("balance", service.cash_Balance(date, cash));
+		model.addAttribute("url", req("/DailyCash/Update"));
+		model.addAttribute("label_Set_List", LabelSet.cash_Set);
+		return "view";
+	}
+
+	@PostMapping("/DailyCash/Update")
+	public String dailyCash_Update(
+			@RequestParam("post_date") String date,
+			@ModelAttribute("cash") Cash cash,
+			RedirectAttributes redirectAttributes) {
+			String message = service.cash_Update(cash);
+			redirectAttributes.addFlashAttribute("message", message);
+		return redirect("/Daily?date=" + date);
+	}
 
 	/** view 表示に必要な属性データをモデルに登録 */
 	private void add_View_Data_(Model model, String template, String title) {

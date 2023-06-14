@@ -19,6 +19,8 @@ public class AccountBookService {
 	private ActionRepository actionRepository;
 	@Autowired
 	private OfficeRepository officeRepository;
+	@Autowired
+	private CashRepository cashRepository;
 
 	/** アクションリスト（1日分） */
 	public List<Action> action_List(String date) {
@@ -165,6 +167,15 @@ public class AccountBookService {
 		return nextId;
 	}
 
+	public int next_Cash_Id() {
+		int nextId = 1;
+		Action lastElement = getLastElement(actionRepository.findAll());
+		if (lastElement != null)
+			nextId = lastElement.getId() + 1;
+		___consoleOut___("next_Cash_Id = " + nextId);
+		return nextId;
+	}
+
 	private void set_Office() {
 		String[] item_Names = office_Item_Names();
 		officeRepository.save(new Office(1, item_Names[0], ""));
@@ -307,6 +318,7 @@ public class AccountBookService {
 		int spending_today = 0;
 		int income_tihs_year = 0;
 		int spending_tihs_year = 0;
+		int balance = cash_Balance(date, cash(date));
 		List<Action> today_List = action_List(date);
 		for (Action action : today_List) {
 			income_today += action.getIncome();
@@ -323,8 +335,52 @@ public class AccountBookService {
 		account.put("spending_today", spending_today);
 		account.put("income_tihs_year", income_tihs_year);
 		account.put("spending_tihs_year", spending_tihs_year);
+		account.put("balance", balance);
 		return account;
 	}
 
+	public Cash cash(String date) {
+		Cash cash;
+		LocalDate localDate = to_LocalDate(date);
+		___consoleOut___("localDate = " + localDate);
+		if(cashRepository.cash(localDate).size() < 1) {
+			int id = next_Cash_Id();
+			cashRepository.save(new Cash(id, localDate, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+		}
+		cash = cashRepository.cash(localDate).get(0);
+		return cash;
+	}
+
+	public int cash_Total(Cash cash) {
+		int total = 0;
+		total += cash.getMan1() * 10000;
+		total += cash.getSen5() * 5000;
+		total += cash.getSen1() * 1000;
+		total += cash.getHyaku5() * 500;
+	  total += cash.getHyaku1() * 100;
+	  total += cash.getJyuu5() * 50;
+	  total += cash.getJyuu1() * 10;
+	  total += cash.getEn5() * 5;
+	  total += cash.getEn1() * 1;
+		return total;
+	}
+
+	public String cash_Update(Cash cash) {
+		String message = cash.getDate() + " の現金残高更新";
+		try {
+			cashRepository.save(cash);
+			message += "が完了しました";
+		} catch (Exception e) {
+			message += "が正常に行われませんでした";
+			e.printStackTrace();
+		}
+		return message;
+	}
+
+	public int cash_Balance(String date, Cash cash) {
+		int remainder = remainder(date);
+		int cash_Total = cash_Total(cash);
+		return cash_Total - remainder;
+	}
 
 }

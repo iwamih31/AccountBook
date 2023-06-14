@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<!-- library フラグメントの定義（JavaScript／CSS） -->
+	<th:block th:fragment="library">
+		<link rel="stylesheet" th:href="@{/css/user.css}">
+	</th:block>
+
+	<!--	main フラグメントの定義（メインコンテンツ）	-->
+	<div th:fragment="main">
+		<!--	ページタイトル	-->
+		<div class="header border-bottom">
+			<h1 class="h2">[[${title}]]</h1>
+		</div>
+		<!--	一覧表示開始	-->
+		<div class="center">
+		<form id="do" method="post" th:action="@{${url}}" th:object="${cash}">
+			<input type="hidden" name="post_date" th:value="${date}" />
+			<input type="hidden" th:field="*{id}" />
+			<div class="date">
+				[[${date}]]
+				<input type="hidden" th:field="*{date}">
+			</div>
+			<table class="table-striped table-bordered font-size-x-large vertical cash">
+				<thead>
+					<tr>
+						<th th:each="label_Set : ${label_Set_List}" class="th-width"
+														th:width="${label_Set.value * 10} + 'em'">
+							[[${label_Set.name}]]
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							10,000
+						</td>
+						<td>
+						[[*{man1}]]
+						<input type="hidden" th:field="*{man1}">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							5,000
+						</td>
+						<td>
+							[[*{sen5}]]
+							<input type="hidden" th:field="*{sen5}">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							1,000
+						</td>
+						<td>
+							[[*{sen1}]]
+							<input type="hidden" th:field="*{sen1}">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							500
+						</td>
+						<td>
+							[[*{hyaku5}]]
+							<input type="hidden" th:field="*{hyaku5}">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							100
+						</td>
+						<td>
+							[[*{hyaku1}]]
+							<input type="hidden" th:field="*{hyaku1}">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							50
+						</td>
+						<td>
+							[[*{jyuu5}]]
+							<input type="hidden" th:field="*{jyuu5}">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							10
+						</td>
+						<td>
+							[[*{jyuu1}]]
+							<input type="hidden" th:field="*{jyuu1}">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							5
+						</td>
+						<td>
+							[[*{en5}]]
+							<input type="hidden" th:field="*{en5}">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							1
+						</td>
+						<td>
+							[[*{en1}]]
+							<input type="hidden" th:field="*{en1}">
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<!--	一覧表示終了	-->
+			<div class="font-size-larger">
+				現金残高<div class="result num3">[[${total}]]</div>
+			</div>
+			<div class="font-size-larger">
+				　差額　<div class="result num3">[[${balance}]]</div>
+			</div>
+			<!--	操作系	-->
+			<div class="margin_1em center">
+				<button form="do" type="submit" class="btn btn-primary margin_1em">
+					確定
+				</button>
+			</div>
+		</form>
+		</div>
+		<br>
+		<a th:href="@{/main}">メインページへ</a>
+	</div>
+</html>
