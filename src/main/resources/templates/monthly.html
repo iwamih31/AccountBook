@@ -24,7 +24,7 @@
 					 [[${name}]]
 				</div>
 				<form id="cash" method="post" th:action="@{${req} + '/DailyCash'}">
-					<input type="hidden" name="date" th:value="${date}"/>
+					<input type="hidden" name="year_month" th:value="${year_month}"/>
 					<button form="cash" type="submit" class="btn btn-primary bg_green">
 						現金残高
 					</button>
@@ -32,12 +32,12 @@
 			</div>
 			<div class="flex margin_1em">
 				<div class="date">
-					[[${date}]]
+					[[${year_month}]]
 				</div>
 				<form id="date" method="post" th:action="@{${req} + '/Daily/Date'}">
-					<input type="hidden" name="date" th:value="${date}"/>
+					<input type="hidden" name="year_month" th:value="${year_month}"/>
 					<button form="date" type="submit" class="btn btn-primary">
-						日付変更
+						月変更
 					</button>
 				</form>
 				　
@@ -55,7 +55,7 @@
 					</button>
 				</form>
 			</div>
-			<table class="table table-striped table-bordered table-hover daily">
+			<table class="table table-striped table-bordered table-hover monthly">
 				<thead class="thead-light">
 					<tr>
 						<th th:each="label_Set : ${label_Set_List}" class="th-width"
@@ -67,61 +67,74 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td>                           </td>
-						<td class="center">前日繰り越し</td>
-						<td>                           </td>
-						<td>                           </td>
-						<td class="num3">[[${account["carryover"]}]]</td>
-						<td>                           </td>
+						<td>                             </td>
+						<td>                             </td>
+						<td class="center">前月繰り越し  </td>
+						<td>                             </td>
+						<td>                             </td>
+						<td class="num3">[[${carryover}]]</td>
 					</tr>
-					<tr th:each="action : ${action_List}" th:object="${action}">
-						<td>[[*{subject}]]               </td>
-						<td>[[*{apply}]]                 </td>
+					<tr th:each="action, status : ${action_List}" th:object="${action}">
+						<td>[[*{date}]]                 </td>
+						<td>[[*{subject}]]              </td>
+						<td>[[*{apply}]]                </td>
 						<th:block th:if="*{income} == 0">
-							<td>                           </td>
+							<td></td>
 						</th:block>
 						<th:block th:if="*{income} != 0">
-							<td class="num3">[[*{income}]] </td>
+							<td class="num3">[[*{income}]]</td>
 						</th:block>
 						<th:block th:if="*{spending} == 0">
-							<td>                           </td>
+							<td></td>
 						</th:block>
 						<th:block th:if="*{spending} != 0">
 							<td class="num3">[[*{spending}]]</td>
 						</th:block>
-						<td>                             </td>
-						<td class="flex padding_0 center">
-							<form th:action="@{${req} + '/ActionUpdate'}" method="post">
-								<input type="hidden" name="id" th:value="*{id}" />
-								<input type="hidden" name="date" th:value="${date}" />
-								<button type="submit" class="btn btn-primary">
-									編集
-								</button>
-							</form>
-							<form th:action="@{${req} + '/ActionDelete'}" method="post">
-								<input type="hidden" name="id" th:value="*{id}" />
-								<input type="hidden" name="date" th:value="${date}" />
-								<button type="submit" class="btn btn-primary bg_red">
-									削除
-								</button>
-							</form>
+						<td class="num3">
+							[[${carryover} + ${income.get(status.index)} - ${spending.get(status.index)}]]
 						</td>
 					</tr>
 					<tr>
-						<td>                                             </td>
-						<td class="center">計                            </td>
-						<td class="num3">[[${account["income_today"]}]]  </td>
-						<td class="num3">[[${account["spending_today"]}]]</td>
-						<td class="num3">[[${account["remainder"]}]]     </td>
-						<td class="center">現金差額                      </td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
 					</tr>
 					<tr>
-						<td>                                                 </td>
-						<td class="center">累計                              </td>
-						<td class="num3">[[${account["income_tihs_year"]}]]  </td>
-						<td class="num3">[[${account["spending_tihs_year"]}]]</td>
-						<td>                                                 </td>
-						<td class="num3">[[${account["balance"]}]]           </td>
+						<td>                           </td>
+						<td>                           </td>
+						<td class="center">翌月繰り越し</td>
+						<td>                           </td>
+						<td>                           </td>
+						<th:block th:each="action, status : ${action_List}">
+							<th:block  th:if="${status.last}">
+								<td class="num3">
+									[[${carryover} + ${income.get(status.index)} - ${spending.get(status.index)}]]
+								</td>
+							</th:block>
+						</th:block>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>                            </td>
+						<td>                            </td>
+						<td class="center">合　計         </td>
+						<th:block th:each="action, status : ${action_List}">
+							<th:block  th:if="${status.last}">
+								<td class="num3">[[${income.get(status.index)}]]  </td>
+								<td class="num3">[[${spending.get(status.index)}]]</td>
+							</th:block>
+						</th:block>
+						<td>                            </td>
 					</tr>
 				</tbody>
 			</table>

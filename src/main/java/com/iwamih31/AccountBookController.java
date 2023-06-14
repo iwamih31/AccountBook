@@ -57,6 +57,13 @@ public class AccountBookController {
 		return "view";
 	}
 
+	@GetMapping("/List")
+	public String list(
+			Model model) {
+		add_View_Data_(model, "list", "各種一覧");
+		return "view";
+	}
+
 	@GetMapping("/Office")
 	public String office(
 			@Param("date")String date,
@@ -218,6 +225,38 @@ public class AccountBookController {
 		String message = service.office_Output_Excel(httpServletResponse);
 		redirectAttributes.addFlashAttribute("message", message);
 		return "redirect:" + req() + "/CareRecord/OfficeReport";
+	}
+
+	@GetMapping("/Monthly")
+	public String monthly(
+			@Param("year_month")String year_month,
+			Model model) {
+		add_View_Data_(model, "monthly", "月別出納一覧");
+		if(year_month  == null) year_month = service.this_Year_Month();
+		model.addAttribute("name", service.name());
+		model.addAttribute("year_month", year_month);
+		model.addAttribute("action_List", service.monthly_List(year_month, 1));
+		model.addAttribute("carryover", service.carryover(year_month));
+		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
+		model.addAttribute("income", service.income_List(year_month, 1));
+		model.addAttribute("spending",service.spending_List(year_month, 1));
+		return "view";
+	}
+
+	@GetMapping("/Year")
+	public String year(
+			@Param("year")String year,
+			Model model) {
+		add_View_Data_(model, "monthly", "年度別出納一覧");
+		if(year  == null) year = service.this_Year();
+		model.addAttribute("name", service.name());
+		model.addAttribute("year_month", year);
+		model.addAttribute("action_List", service.year_List(year, 1));
+		model.addAttribute("carryover", service.carryover(year));
+		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
+		model.addAttribute("income", 0);
+		model.addAttribute("spending", 0);
+		return "view";
 	}
 
 	@PostMapping("/Daily")

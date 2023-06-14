@@ -10,6 +10,14 @@ public class LabelSet {
 			set("残高",		7)
 		};
 
+	public static Set[] action_List_Set = {
+			set("日付",		8),
+			set("科目",		10),
+			set("適用",		20),
+			set("収入",	  8),
+			set("支出",		8),
+	};
+
 	public static Set[] actionInsert_Set = {
 			set("日付",		8),
 			set("科目",		10),
@@ -45,6 +53,7 @@ public class LabelSet {
 			set("金種",10),
 			set("枚数",10)
 	};
+
 
 	public static Set set(String label_Name, int width) {
 		return new Set(label_Name, width);

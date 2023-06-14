@@ -16,7 +16,10 @@ public interface ActionRepository extends JpaRepository<Action, Integer> {
 			+ " from Action action"
 			+ " where action.date >= :start_date"
 			+ " and action.date <= :end_date"
-			+ " order by action.subject asc")
+			+ " order by"
+			+ " action.date asc,"
+			+ " action.subject asc,"
+			+ " action.apply asc")
 	public List<Action> action_List(
 			@Param("start_date") LocalDate start_date,
 			@Param("end_date") LocalDate end_date

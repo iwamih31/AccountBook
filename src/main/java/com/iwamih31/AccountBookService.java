@@ -2,6 +2,7 @@ package com.iwamih31;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -309,9 +310,56 @@ public class AccountBookService {
 		return remainder(yesterday);
 	}
 
+	// localDate の年の1日から volume 年分の Action リストを返す
+	public List<Action> year_List(LocalDate localDate, int volume) {
+		LocalDate start_date = localDate.withDayOfYear(1);
+		LocalDate end_date = start_date.plusYears(volume).minusDays(1);
+		return actionRepository.action_List(start_date, end_date);
+	}
+
+	// localDate の月の1日から volume 月分の Action リストを返す
+	public List<Action> monthly_List(LocalDate localDate, int volume) {
+		LocalDate start_date = localDate.withDayOfMonth(1);
+		LocalDate end_date = start_date.plusMonths(volume).minusDays(1);
+		return actionRepository.action_List(start_date, end_date);
+	}
+
+	// date の年の1日から volume 年分の Action リストを返す
+	public List<Action> year_List(String date, int volume) {
+		LocalDate localDate = to_LocalDate(date);
+		return year_List(localDate, volume);
+	}
+
+	// date の月の1日から volume 月分の Action リストを返す
+	public List<Action> monthly_List(String date, int volume) {
+		LocalDate localDate = to_LocalDate(date);
+		return monthly_List(localDate, volume);
+	}
+
+	// localDate の年の1日から localDate までの Action リストを返す
+	public List<Action> year_List(LocalDate localDate) {
+		return actionRepository.action_List(localDate.withDayOfYear(1), localDate);
+	}
+
+	// localDate の月の1日から localDate までの Action リストを返す
+	public List<Action> monthly_List(LocalDate localDate) {
+		return actionRepository.action_List(localDate.withDayOfMonth(1), localDate);
+	}
+
+	// date の年の1日から date までの Action リストを返す
+	public List<Action> year_List(String date) {
+		LocalDate localDate = to_LocalDate(date);
+		return actionRepository.action_List(localDate.withDayOfYear(1), localDate);
+	}
+
+	// date の月の1日から date までの Action リストを返す
+	public List<Action> monthly_List(String date) {
+		LocalDate localDate = to_LocalDate(date);
+		return actionRepository.action_List(localDate.withDayOfYear(1), localDate);
+	}
+
 	public Map<String, Integer> account(String date) {
 		Map<String, Integer> account = new HashMap<>();
-		LocalDate localDate = to_LocalDate(date);
 		int carryover = carryover(date);
 		int remainder = remainder(date);
 		int income_today = 0;
@@ -324,7 +372,7 @@ public class AccountBookService {
 			income_today += action.getIncome();
 			spending_today += action.getSpending();
 		}
-		List<Action> year_List = actionRepository.action_List(localDate.withDayOfYear(1), localDate);
+		List<Action> year_List = year_List(date);
 		for (Action action : year_List) {
 			income_tihs_year += action.getIncome();
 			spending_tihs_year += action.getSpending();
@@ -381,6 +429,52 @@ public class AccountBookService {
 		int remainder = remainder(date);
 		int cash_Total = cash_Total(cash);
 		return cash_Total - remainder;
+	}
+
+	public String this_Year_Month() {
+		// 今日の日付を取得
+		LocalDateTime now = LocalDateTime.now();
+		// 表示形式を指定
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM");
+		return dateTimeFormatter.format(now);
+	}
+
+	public String this_Year() {
+		// 今日の日付を取得
+		LocalDateTime now = LocalDateTime.now();
+		// 表示形式を指定
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy");
+		return dateTimeFormatter.format(now);
+	}
+
+	public String this_Month() {
+		// 今日の日付を取得
+		LocalDateTime now = LocalDateTime.now();
+		// 表示形式を指定
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM");
+		return dateTimeFormatter.format(now);
+	}
+
+	public List<Integer> income_List(String year_month, int volume) {
+		int income = 0;
+		List<Action> actions = monthly_List(year_month, volume);
+		List<Integer> income_List = new ArrayList<>();
+		for (Action action : actions) {
+			income += action.getIncome();
+			income_List.add(income);
+		}
+		return income_List;
+	}
+
+	public List<Integer> spending_List(String year_month, int volume) {
+		int spending = 0;
+		List<Action> actions = monthly_List(year_month, volume);
+		List<Integer> spending_List = new ArrayList<>();
+		for (Action action : actions) {
+			spending += action.getSpending();
+			spending_List.add(spending);
+		}
+		return spending_List;
 	}
 
 }
