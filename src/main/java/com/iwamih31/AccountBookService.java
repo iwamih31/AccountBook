@@ -297,6 +297,7 @@ public class AccountBookService {
 		int income_total = 0;
 		int spending_total = 0;
 		List<Action> actions = actionRepository.up_to_date(to_LocalDate(date));
+		if (actions.size() < 1) return 0;
 		for (Action action : actions) {
 			income_total += action.getIncome();
 			spending_total += action.getSpending();

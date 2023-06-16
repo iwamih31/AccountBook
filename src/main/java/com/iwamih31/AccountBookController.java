@@ -247,15 +247,16 @@ public class AccountBookController {
 	public String year(
 			@Param("year")String year,
 			Model model) {
-		add_View_Data_(model, "monthly", "年度別出納一覧");
+		add_View_Data_(model, "year", "年度別出納一覧");
 		if(year  == null) year = service.this_Year();
 		model.addAttribute("name", service.name());
-		model.addAttribute("year_month", year);
-		model.addAttribute("action_List", service.year_List(year, 1));
+		model.addAttribute("year", year);
+		year += "/01";
+		model.addAttribute("action_List", service.year_List(year, 12));
 		model.addAttribute("carryover", service.carryover(year));
 		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
-		model.addAttribute("income", 0);
-		model.addAttribute("spending", 0);
+		model.addAttribute("income", service.income_List(year, 12));
+		model.addAttribute("spending", service.spending_List(year, 12));
 		return "view";
 	}
 
