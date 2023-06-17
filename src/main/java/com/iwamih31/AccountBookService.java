@@ -282,7 +282,7 @@ public class AccountBookService {
 		return new State(id, name, to_LocalDate(date));
 	}
 
-	private LocalDate to_LocalDate(String date) {
+	public LocalDate to_LocalDate(String date) {
 		Integer[] split_Date = split_Date(date);
 		int year = split_Date[0];
 		int month = split_Date[1];

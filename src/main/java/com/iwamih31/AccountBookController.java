@@ -232,19 +232,43 @@ public class AccountBookController {
 		return redirect("/CareRecord/OfficeReport");
 	}
 
+	@PostMapping("/LastMonth")
+	public String lastMonth(
+			@RequestParam("date")String date,
+			RedirectAttributes redirectAttributes) {
+		LocalDate lastMonth = service.to_LocalDate(date).minusMonths(1);
+		return redirect("/Monthly?date=" + lastMonth);
+	}
+
+	@PostMapping("/NextMonth")
+	public String nextMonth(
+			@RequestParam("date")String date,
+			RedirectAttributes redirectAttributes) {
+		LocalDate nextMonth = service.to_LocalDate(date).plusMonths(1);
+		return redirect("/Monthly?date=" + nextMonth);
+	}
+
+	@PostMapping("/Monthly")
+	public String monthly(
+			@RequestParam("date")String date,
+			RedirectAttributes redirectAttributes) {
+		return redirect("/Monthly?date=" + date);
+	}
+
 	@GetMapping("/Monthly")
 	public String monthly(
-			@Param("year_month")String year_month,
+			@Param("year_month")String date,
 			Model model) {
 		add_View_Data_(model, "monthly", "月別出納一覧");
-		if(year_month  == null) year_month = service.this_Year_Month();
+		if(date  == null) date = service.today();
 		model.addAttribute("name", service.name());
-		model.addAttribute("year_month", service.japanese_Date(year_month, "G y 年 M 月"));
-		model.addAttribute("action_List", service.monthly_List(year_month, 1));
-		model.addAttribute("carryover", service.carryover(year_month));
+		model.addAttribute("date", date);
+		model.addAttribute("japanese_Date", service.japanese_Date(date, "G y 年 M 月"));
+		model.addAttribute("action_List", service.monthly_List(date, 1));
+		model.addAttribute("carryover", service.carryover(date));
 		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
-		model.addAttribute("income", service.income_List(year_month, 1));
-		model.addAttribute("spending",service.spending_List(year_month, 1));
+		model.addAttribute("income", service.income_List(date, 1));
+		model.addAttribute("spending",service.spending_List(date, 1));
 		return "view";
 	}
 
@@ -319,6 +343,17 @@ public class AccountBookController {
 		model.addAttribute("date", date);
 		model.addAttribute("label", "日付を選んでください");
 		model.addAttribute("url", req("/Daily"));
+		return "view";
+	}
+
+	@PostMapping("/SelectMonth")
+	public String selectMonth(
+			@RequestParam("date") String date,
+			Model model) {
+		add_View_Data_(model, "date", "日付選択");
+		model.addAttribute("date", date);
+		model.addAttribute("label", "日付を選んでください");
+		model.addAttribute("url", req("/Monthly"));
 		return "view";
 	}
 

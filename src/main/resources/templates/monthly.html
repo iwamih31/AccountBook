@@ -23,35 +23,35 @@
 				<div class="name">
 					 [[${name}]]
 				</div>
-				<form id="cash" method="post" th:action="@{${req} + '/DailyCash'}">
-					<input type="hidden" name="year_month" th:value="${year_month}"/>
-					<button form="cash" type="submit" class="btn btn-primary bg_green">
-						現金残高
-					</button>
-				</form>
-			</div>
-			<div class="flex margin_1em">
-				<div class="date">
-					[[${year_month}]]
-				</div>
-				<form id="date" method="post" th:action="@{${req} + '/Daily/Date'}">
-					<input type="hidden" name="year_month" th:value="${year_month}"/>
-					<button form="date" type="submit" class="btn btn-primary">
-						月変更
-					</button>
-				</form>
-				　
 				<form id="output" method="post" th:action="@{${req} + '/Daily/Output/Excel'}">
 					<input type="hidden" name="date" th:value="${date}"/>
 					<button form="output" type="submit" class="btn btn-primary">
 						Excel出力
 					</button>
 				</form>
+			</div>
+			<div class="flex margin_1em">
+				<div class="date">
+					[[${japanese_Date}]]
+				</div>
+				<form id="date" method="post" th:action="@{${req} + '/SelectMonth'}">
+					<input type="hidden" name="date" th:value="${date}"/>
+					<button form="date" type="submit" class="btn btn-primary">
+						月選択
+					</button>
+				</form>
 				　
-				<form id="insert" method="post" th:action="@{${req} + '/ActionInsert'}">
+				<form id="cash" method="post" th:action="@{${req} + '/LastMonth'}">
+					<input type="hidden" name="date" th:value="${date}"/>
+					<button form="cash" type="submit" class="btn btn-primary bg_green">
+						前月＜
+					</button>
+				</form>
+				　
+				<form id="insert" method="post" th:action="@{${req} + '/NextMonth'}">
 					<input type="hidden" name="date" th:value="${date}"/>
 					<button form="insert" type="submit" class="btn btn-primary bg_green">
-						新規出納追加
+						＞翌月
 					</button>
 				</form>
 			</div>
@@ -115,6 +115,9 @@
 								</td>
 							</th:block>
 						</th:block>
+						<th:block th:if="${action_List.size() == 0}">
+							<td class="num3">[[${carryover}]]</td>
+						</th:block>
 					</tr>
 					<tr>
 						<td></td>
@@ -133,6 +136,10 @@
 								<td class="num3">[[${income.get(status.index)}]]  </td>
 								<td class="num3">[[${spending.get(status.index)}]]</td>
 							</th:block>
+						</th:block>
+						<th:block th:if="${action_List.size() == 0}">
+							<td class="num3"></td>
+							<td class="num3"></td>
 						</th:block>
 						<td>                            </td>
 					</tr>
