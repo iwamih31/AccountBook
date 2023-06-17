@@ -2,10 +2,14 @@ package com.iwamih31;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.JapaneseChronology;
+import java.time.chrono.JapaneseDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +26,8 @@ public class AccountBookService {
 	private OfficeRepository officeRepository;
 	@Autowired
 	private CashRepository cashRepository;
+	@Autowired
+	private SubjectRepository subjectRepository;
 
 	/** アクションリスト（1日分） */
 	public List<Action> action_List(String date) {
@@ -220,10 +226,57 @@ public class AccountBookService {
 		System.out.println("");
 	}
 
-	// 今日の日付を取得
-	public LocalDate today() {
-		return LocalDate.now();
+	// 今日の日付の文字列を取得
+	public String today() {
+		// 今日の日付を取得
+		LocalDate now = LocalDate.now();
+		// 表示形式を指定
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		return dateTimeFormatter.format(now);
 	}
+
+	// 和暦に変換
+	public String japanese_Date(String date, String format_Pattern) {
+		Integer[] split_Date = split_Date(date);
+		JapaneseDate japaneseDate = JapaneseDate.of(split_Date[0], split_Date[1], split_Date[2]);
+		// 表示形式を指定
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(format_Pattern);
+		return dateTimeFormatter.format(japaneseDate);
+	}
+
+	// 和暦に変換
+	public String japanese_Date(String date) {
+		return japanese_Date(date, "G y 年 M 月 d 日");
+	}
+
+	// 和暦に変換
+	public String japanese_Year(String date) {
+		Integer[] split_Date = split_Date(date);
+		JapaneseDate japaneseDate = JapaneseDate.of(split_Date[0], split_Date[1], split_Date[2]);
+		// 表示形式を指定
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("G y 年");
+		return dateTimeFormatter.format(japaneseDate);
+	}
+
+	// 和暦に変換
+	public String japanese_Date(LocalDate localDate) {
+		return japanese_Date(localDate.toString());
+	}
+
+	// 和暦の文字列をLocalDateに変換
+	public LocalDate to_LocalDate(String japanese_Date, String format_Pattern) {
+
+    // DateTimeFormatterオブジェクトを生成し、和暦のパターンを設定する
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format_Pattern, Locale.JAPAN)
+            .withChronology(JapaneseChronology.INSTANCE)
+            .withResolverStyle(ResolverStyle.SMART);
+
+    // 和暦の文字列を JapaneseDate に変換する
+    JapaneseDate wareki = JapaneseDate.from(formatter.parse(japanese_Date));
+
+    // JapaneseDateからLocalDateに変換する
+    return LocalDate.from(wareki);
+}
 
 	public State state(int id, String name, String date) {
 		return new State(id, name, to_LocalDate(date));
@@ -253,6 +306,9 @@ public class AccountBookService {
 			date = date.trim();
 			date = date.split(" ")[0];
 			date = date.split("T")[0];
+			date = date.replace("年", "-");
+			date = date.replace("月", "-");
+			date = date.replace("日", "-");
 			date = date.replace("/", "-");
 			String[] array = date.split("-");
 			if (array.length > 0 && is_Int(array[0]))
@@ -282,12 +338,12 @@ public class AccountBookService {
 	}
 
 	public List<String> subjects() {
-		List<Action> actions = actionRepository.subjects();
+		List<Subject> subject_All = subjectRepository.findAll();
 		List<String> subjects = new ArrayList<>();
 		subjects.add("　　　　");
-		if(actions != null) {
-			for (Action action : actions) {
-				subjects.add(action.getSubject());
+		if(subject_All != null) {
+			for (Subject subject : subject_All) {
+				subjects.add(subject.getSubject_name());
 			}
 		}
 		return subjects;
@@ -318,6 +374,16 @@ public class AccountBookService {
 		return actionRepository.action_List(start_date, end_date);
 	}
 
+	// localDate の年の1日から volume 年分の Action リストを返す（subject 指定）
+	public List<Action> year_List(LocalDate localDate, int volume, String subject) {
+		LocalDate start_date = localDate.withDayOfYear(1);
+		LocalDate end_date = start_date.plusYears(volume).minusDays(1);
+		if(subject.equals("全科目")) {
+			return actionRepository.action_List(start_date, end_date);
+		}
+		return actionRepository.action_List(start_date, end_date, subject);
+	}
+
 	// localDate の月の1日から volume 月分の Action リストを返す
 	public List<Action> monthly_List(LocalDate localDate, int volume) {
 		LocalDate start_date = localDate.withDayOfMonth(1);
@@ -325,10 +391,15 @@ public class AccountBookService {
 		return actionRepository.action_List(start_date, end_date);
 	}
 
-	// date の年の1日から volume 年分の Action リストを返す
+	// date の年の1日から volume 月分の Action リストを返す
 	public List<Action> year_List(String date, int volume) {
 		LocalDate localDate = to_LocalDate(date);
 		return year_List(localDate, volume);
+	}
+
+	public Object year_List(String year, int volume, String subject) {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
 	}
 
 	// date の月の1日から volume 月分の Action リストを返す
@@ -476,6 +547,23 @@ public class AccountBookService {
 			spending_List.add(spending);
 		}
 		return spending_List;
+	}
+
+	public Object years() {
+		int size = 100;
+		LocalDate localDate = LocalDate.now();
+		localDate = localDate.minusYears(size);
+		List<String> years = new ArrayList<>();
+		for (int i = 0; i <= size; i++) {
+			years.add(japanese_Year(localDate.plusYears(i).toString()));
+		}
+		return years;
+	}
+
+	public String year(String year, String format_Pattern) {
+		___consoleOut___("year = " + year + "format_Pattern = " + format_Pattern );
+		LocalDate localDate = to_LocalDate(year, format_Pattern);
+		return String.valueOf(localDate.getYear());
 	}
 
 }

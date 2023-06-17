@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OfficeRepository extends JpaRepository<Office, Integer> {
 
-	/**	item列の値が引数 item の値と同じ行のvalue列の値を文字列で返す */
+	/**	item_name 列の値が引数 item_name の値と同じ行の item_value 列の値を文字列で返す */
 	@Query("select office.item_value"
 			+ " from Office office"
 			+ " where office.item_name = :item_name")

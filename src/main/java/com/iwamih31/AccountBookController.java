@@ -1,5 +1,7 @@
 package com.iwamih31;
 
+import java.time.LocalDate;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,10 +103,12 @@ public class AccountBookController {
 			Model model) {
 		add_View_Data_(model, "actionInsert", "新規出納追加");
 		model.addAttribute("date", date);
+		model.addAttribute("japanese_Date", service.japanese_Date(date));
 		model.addAttribute("name", service.name());
 		model.addAttribute("action", service.new_Action(date));
 		model.addAttribute("next_id", service.next_Action_Id());
 		model.addAttribute("label_Set_List", LabelSet.actionInsert_Set);
+		model.addAttribute("subjects", service.subjects());
 		return "view";
 	}
 
@@ -115,17 +119,16 @@ public class AccountBookController {
 			RedirectAttributes redirectAttributes) {
 		String message = service.office_Insert(office, id);
 		redirectAttributes.addFlashAttribute("message", message);
-		return "redirect:" + req() + "/OfficeSetting";
+		return redirect("/OfficeSetting");
 	}
 
 	@PostMapping("/Action/Insert")
 	public String action_Insert(
 			@RequestParam("date")String date,
-			@ModelAttribute("office")Action action,
+			@ModelAttribute("action")Action action,
 			RedirectAttributes redirectAttributes) {
 		String message = service.action_Insert(action);
 		redirectAttributes.addFlashAttribute("message", message);
-		redirectAttributes.addFlashAttribute("date", date);
 		return redirect("/Daily?date=" + date);
 	}
 
@@ -144,7 +147,7 @@ public class AccountBookController {
 			@RequestParam("id")int id,
 			@RequestParam("date")String date,
 			Model model) {
-		add_View_Data_(model, "actionUpdate", "事業所情報更新");
+		add_View_Data_(model, "actionUpdate", "出納情報更新");
 		model.addAttribute("guide", "内容変更後更新ボタンを押してください");
 		model.addAttribute("do_Name", "更新");
 		model.addAttribute("cancel_url", req("/Daily"));
@@ -153,6 +156,7 @@ public class AccountBookController {
 		model.addAttribute("date", date);
 		model.addAttribute("object", service.action(id));
 		model.addAttribute("label_Set_List", LabelSet.actionUpdate_Set);
+		model.addAttribute("subjects", service.subjects());
 		return "view";
 	}
 
@@ -164,7 +168,8 @@ public class AccountBookController {
 			RedirectAttributes redirectAttributes) {
 		String message = service.action_Update(action, id);
 		redirectAttributes.addFlashAttribute("message", message);
-		return redirect("/Daily?date=" + date);
+		LocalDate localDate = service.to_LocalDate(date, "G y 年 M 月 d 日");
+		return redirect("/Daily?date=" + localDate);
 	}
 
 	@PostMapping("/Office/Update")
@@ -174,7 +179,7 @@ public class AccountBookController {
 			RedirectAttributes redirectAttributes) {
 		String message = service.office_Update(office, id);
 		redirectAttributes.addFlashAttribute("message", message);
-		return "redirect:" + req() + "/OfficeSetting";
+		return redirect("/OfficeSetting");
 	}
 
 	@PostMapping("/ActionDelete")
@@ -224,7 +229,7 @@ public class AccountBookController {
 			RedirectAttributes redirectAttributes) {
 		String message = service.office_Output_Excel(httpServletResponse);
 		redirectAttributes.addFlashAttribute("message", message);
-		return "redirect:" + req() + "/CareRecord/OfficeReport";
+		return redirect("/CareRecord/OfficeReport");
 	}
 
 	@GetMapping("/Monthly")
@@ -234,7 +239,7 @@ public class AccountBookController {
 		add_View_Data_(model, "monthly", "月別出納一覧");
 		if(year_month  == null) year_month = service.this_Year_Month();
 		model.addAttribute("name", service.name());
-		model.addAttribute("year_month", year_month);
+		model.addAttribute("year_month", service.japanese_Date(year_month, "G y 年 M 月"));
 		model.addAttribute("action_List", service.monthly_List(year_month, 1));
 		model.addAttribute("carryover", service.carryover(year_month));
 		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
@@ -243,20 +248,45 @@ public class AccountBookController {
 		return "view";
 	}
 
+	@PostMapping("/Year")
+	public String year(
+			@RequestParam("year")String year,
+			@RequestParam("subject")String subject,
+			RedirectAttributes redirectAttributes) {
+		redirectAttributes.addAttribute("subject", subject);
+		year = service.year(year + " 1 月 1 日", "G y 年 M 月 d 日");
+		return redirect("/Year?year=" + year);
+	}
+
 	@GetMapping("/Year")
 	public String year(
 			@Param("year")String year,
+			@Param("subject")String subject,
 			Model model) {
 		add_View_Data_(model, "year", "年度別出納一覧");
 		if(year  == null) year = service.this_Year();
 		model.addAttribute("name", service.name());
-		model.addAttribute("year", year);
+		model.addAttribute("year", service.japanese_Date(year, "G y 年"));
 		year += "/01";
-		model.addAttribute("action_List", service.year_List(year, 12));
 		model.addAttribute("carryover", service.carryover(year));
 		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
 		model.addAttribute("income", service.income_List(year, 12));
 		model.addAttribute("spending", service.spending_List(year, 12));
+		if(subject  == null) subject = "全科目";
+		model.addAttribute("subject", subject);
+		model.addAttribute("action_List", service.year_List(year, 1));
+		return "view";
+	}
+
+	@PostMapping("/SelectYear")
+	public String selectYear(
+			@RequestParam("year") String year,
+			@RequestParam("subject") String subject,
+			Model model) {
+		add_View_Data_(model, "selectYear", "年度選択");
+		model.addAttribute("selected_year", year);
+		model.addAttribute("subject", subject);
+		model.addAttribute("years", service.years());
 		return "view";
 	}
 
@@ -270,10 +300,11 @@ public class AccountBookController {
 	public String daily(
 			@Param("date") String date,
 			Model model) {
-		if (date == null) date = service.today().toString();
+		if (date == null) date = service.today();
 		add_View_Data_(model, "daily", "出納帳");
-		model.addAttribute("name", service.name());
 		model.addAttribute("date", date);
+		model.addAttribute("japanese_Date", service.japanese_Date(date));
+		model.addAttribute("name", service.name());
 		model.addAttribute("action_List", service.action_List(date));
 		model.addAttribute("account", service.account(date));
 		model.addAttribute("label_Set_List", LabelSet.daily_Set);
@@ -284,7 +315,6 @@ public class AccountBookController {
 	public String daily_Date(
 			@RequestParam("date") String date,
 			Model model) {
-//		if (date == null) date = service.today().toString();
 		add_View_Data_(model, "date", "日付選択");
 		model.addAttribute("date", date);
 		model.addAttribute("label", "日付を選んでください");
@@ -298,6 +328,7 @@ public class AccountBookController {
 			Model model) {
 		add_View_Data_(model, "cash", "現金残高入力");
 		model.addAttribute("date", date);
+		model.addAttribute("japanese_Date", service.japanese_Date(date));
 		model.addAttribute("cash", service.cash(date));
 		model.addAttribute("label_Set_List", LabelSet.cash_Set);
 		return "view";
@@ -310,6 +341,7 @@ public class AccountBookController {
 			Model model) {
 		add_View_Data_(model, "cashResult", "現金残高確認");
 		model.addAttribute("date", date);
+		model.addAttribute("japanese_Date", service.japanese_Date(date));
 		model.addAttribute("total", service.cash_Total(cash));
 		model.addAttribute("balance", service.cash_Balance(date, cash));
 		model.addAttribute("url", req("/DailyCash/Update"));

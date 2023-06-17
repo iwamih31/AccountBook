@@ -151,7 +151,9 @@ nav button,
 	font-size: 1.5em;
 }
 
-.date {
+.date,
+.subject
+ {
 	display: inline-flex;
 	border: solid blue thin;
 	border-radius: 0.2em;

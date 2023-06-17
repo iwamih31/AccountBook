@@ -25,6 +25,22 @@ public interface ActionRepository extends JpaRepository<Action, Integer> {
 			@Param("end_date") LocalDate end_date
 			);
 
+	/**	Action取得（日付指定） */
+	@Query("select action"
+			+ " from Action action"
+			+ " where action.date >= :start_date"
+			+ " and action.date <= :end_date"
+			+ " and action.subject = :subject"
+			+ " order by"
+			+ " action.date asc,"
+			+ " action.subject asc,"
+			+ " action.apply asc")
+	public List<Action> action_List(
+			@Param("start_date") LocalDate start_date,
+			@Param("end_date") LocalDate end_date,
+			@Param("subject") String subject
+			);
+
 	/**	subjects取得（日付降順） */
 	@Query("select distinct action"
 			+ " from Action action"
