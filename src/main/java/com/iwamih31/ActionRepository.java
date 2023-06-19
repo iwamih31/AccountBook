@@ -41,11 +41,15 @@ public interface ActionRepository extends JpaRepository<Action, Integer> {
 			@Param("subject") String subject
 			);
 
-	/**	subjects取得（日付降順） */
-	@Query("select distinct action"
-			+ " from Action action"
-			+ " order by action.date desc")
-	public List<Action> subjects();
+	/**	subjects取得 */
+	@Query("select distinct action.subject"
+			+ " from Action action")
+	public List<String> subjects();
+
+	/**	applys取得 */
+	@Query("select distinct action.apply"
+			+ " from Action action")
+	public List<String> applys();
 
 	/**	Action取得（指定日まで） */
 	@Query("select distinct action"

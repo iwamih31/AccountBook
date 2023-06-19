@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<!-- library フラグメントの定義（JavaScript／CSS） -->
+	<th:block th:fragment="library">
+		<link rel="stylesheet" th:href="@{/css/main.css}">
+	</th:block>
+
+	<!--	main フラグメントの定義（メインコンテンツ）	-->
+	<div th:fragment="main">
+		<!--	タイトル表示	-->
+		<div class="header border-bottom">
+			<h1 class="h2">[[${title}]]</h1>
+		</div>
+		<!--	操作系表示	-->
+		<div>
+			<div class="flex">
+				<div class="name">
+					[[${name}]]
+				</div>
+			</div>
+			<div class="center margin_1em">
+				<div class="date">
+					[[${displayed_Date}]]
+				</div>
+			</div>
+
+			<form id="select" method="post" th:action="@{${req} + ${url}}" th:object="${object}">
+				<input type="hidden" name="post_date" th:value="${date}" />
+				<input type="hidden" th:field="*{id}" />
+				<input type="hidden" th:field="*{date}" />
+				<input type="hidden" th:field="*{subject}" />
+				<input type="hidden" th:field="*{apply}" />
+				<input type="hidden" th:field="*{income}" />
+				<input type="hidden" th:field="*{spending}" />
+				<table class="center">
+						<tr>
+							<td class="guide">
+								[[${guide}]]
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<select name="field" th:value="${field}" >
+									<option th:each="option : ${options}" th:value="${option}">[[${option}]]</option>
+								</select>
+								<button form="select" type="submit" class="btn btn-primary">
+									決定
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		</div>
+		<!--	トップページへのリンク	-->
+		<br>
+		<a th:href="@{/main}">メインページへ</a>
+	</div>
+
+</html>

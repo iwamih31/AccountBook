@@ -80,7 +80,9 @@ nav button,
 	width: auto;
 }
 
-.guide {
+.guide,
+.label
+ {
 	font-size: x-large;
 }
 

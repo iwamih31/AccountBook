@@ -80,6 +80,19 @@ public class AccountBookService {
 		return message;
 	}
 
+	public String subject_Insert(Subject subject_Item, int id) {
+		subject_Item.setId(id);
+		String message = "ID = " + subject_Item.getId() + " の科目データ登録";
+		try {
+			subjectRepository.save(subject_Item);
+			message += "が完了しました";
+		} catch (Exception e) {
+			message += "が正常に行われませんでした";
+			e.printStackTrace();
+		}
+		return message;
+	}
+
 	public String action_Insert(Action action) {
 		int id = next_Action_Id();
 		action.setId(id);
@@ -141,11 +154,19 @@ public class AccountBookService {
 		return officeRepository.findAll();
 	}
 
+	public List<Subject> subject_Report() {
+		return subjectRepository.findAll();
+	}
+
 	public Office new_Office() {
 		Office new_Office = new Office(next_Office_Id(), "", "");
 		if (new_Office.getId() == 1)
 			set_Office();
 		return new Office(next_Office_Id(), "", "");
+	}
+
+	public Subject new_Subject() {
+		return new Subject(next_Subject_Id(), "", "");
 	}
 
 	public Action new_Action() {
@@ -159,6 +180,15 @@ public class AccountBookService {
 	public int next_Office_Id() {
 		int nextId = 1;
 		Office lastElement = getLastElement(officeRepository.findAll());
+		if (lastElement != null)
+			nextId = lastElement.getId() + 1;
+		___consoleOut___("next_Office_Id = " + nextId);
+		return nextId;
+	}
+
+	public int next_Subject_Id() {
+		int nextId = 1;
+		Subject lastElement = getLastElement(subjectRepository.findAll());
 		if (lastElement != null)
 			nextId = lastElement.getId() + 1;
 		___consoleOut___("next_Office_Id = " + nextId);
@@ -187,6 +217,10 @@ public class AccountBookService {
 		String[] item_Names = office_Item_Names();
 		officeRepository.save(new Office(1, item_Names[0], ""));
 		officeRepository.save(new Office(2, item_Names[1], ""));
+	}
+
+	private void set_Subject() {
+		subjectRepository.save(new Subject(1, "", ""));
 	}
 
 	/** 事業所データをExcelファイルとして出力 */
@@ -338,15 +372,20 @@ public class AccountBookService {
 	}
 
 	public List<String> subjects() {
-		List<Subject> subject_All = subjectRepository.findAll();
-		List<String> subjects = new ArrayList<>();
-		subjects.add("　　　　");
-		if(subject_All != null) {
-			for (Subject subject : subject_All) {
-				subjects.add(subject.getSubject_name());
-			}
-		}
+
+		List<String> subjects = actionRepository.subjects();
+		subjects.add(0, "");
 		return subjects;
+	}
+
+	public List<String> applys() {
+		List<String> applys = actionRepository.applys();
+		applys.add(0, "");
+		return applys;
+	}
+
+	public String[] accounts() {
+		return new String[] {"支出", "収入"};
 	}
 
 	public int remainder(String date) {

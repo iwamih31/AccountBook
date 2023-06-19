@@ -19,7 +19,6 @@ public class LabelSet {
 	};
 
 	public static Set[] actionInsert_Set = {
-			set("日付",		8),
 			set("科目",		10),
 			set("適用",		20),
 			set("収入",	  8),

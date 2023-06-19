@@ -78,7 +78,6 @@ public class AccountBookController {
 		return "view";
 	}
 
-
 	@GetMapping("/OfficeSetting")
 	public String officeSetting(
 			Model model) {
@@ -87,6 +86,13 @@ public class AccountBookController {
 		return "view";
 	}
 
+	@GetMapping("/SubjectSetting")
+	public String subjectSetting(
+			Model model) {
+		add_View_Data_(model, "subjectSetting", "科目設定");
+		model.addAttribute("subjectList", service.subject_Report());
+		return "view";
+	}
 
 	@GetMapping("/OfficeInsert")
 	public String officeInsert(
@@ -94,6 +100,15 @@ public class AccountBookController {
 		add_View_Data_(model, "officeInsert", "新規項目追加");
 		model.addAttribute("office", service.new_Office());
 		model.addAttribute("next_id", service.next_Office_Id());
+		return "view";
+	}
+
+	@GetMapping("/SubjectInsert")
+	public String subjectInsert(
+			Model model) {
+		add_View_Data_(model, "subjectInsert", "新規項科目追加");
+		model.addAttribute("subject", service.new_Subject());
+		model.addAttribute("next_id", service.next_Subject_Id());
 		return "view";
 	}
 
@@ -112,6 +127,137 @@ public class AccountBookController {
 		return "view";
 	}
 
+	@PostMapping("/ActionInput")
+	public String actionInput(
+			@RequestParam("post_date")String date,
+			@ModelAttribute("action")Action action,
+			Model model) {
+		add_View_Data_(model, "actionInput", "新規出納追加");
+		model.addAttribute("date", date);
+		model.addAttribute("japanese_Date", service.japanese_Date(date));
+		model.addAttribute("name", service.name());
+		model.addAttribute("action", action);
+		model.addAttribute("next_id", service.next_Action_Id());
+		model.addAttribute("label_Set_List", LabelSet.actionInsert_Set);
+		model.addAttribute("subjects", service.subjects());
+		return "view";
+	}
+
+	@PostMapping("/ActionSubject/Select")
+	public String actionSubject_Select(
+			@RequestParam("date")String date,
+			Model model) {
+		add_View_Data_(model, "select", "科目選択");
+		model.addAttribute("url", "/ActionSubject/Input");
+		model.addAttribute("date", date);
+		model.addAttribute("displayed_Date", service.japanese_Date(date));
+		model.addAttribute("name", service.name());
+		model.addAttribute("guide", "科目を選択して下さい");
+		Action object = service.new_Action(date);
+		model.addAttribute("object", object);
+		model.addAttribute("field", object.getSubject());
+		model.addAttribute("options", service.subjects());
+		return "view";
+	}
+
+	@PostMapping("/ActionSubject/Input")
+	public String actionSubject_Input(
+			@RequestParam("post_date")String date,
+			@RequestParam("field")String subject,
+			@ModelAttribute("object")Action action,
+			Model model) {
+		add_View_Data_(model, "input", "科目入力");
+		model.addAttribute("url", "/ActionApply/Select");
+		model.addAttribute("date", date);
+		model.addAttribute("displayed_Date", service.japanese_Date(date));
+		model.addAttribute("name", service.name());
+		model.addAttribute("guide", "科目を入力して下さい");
+		model.addAttribute("object", action);
+		model.addAttribute("field", subject);
+		return "view";
+	}
+
+	@PostMapping("/ActionApply/Select")
+	public String actionApply_Select(
+			@RequestParam("post_date")String date,
+			@RequestParam("field")String subject,
+			@ModelAttribute("object")Action action,
+			Model model) {
+		add_View_Data_(model, "select", "適用選択");
+		model.addAttribute("url", "/ActionApply/Input");
+		model.addAttribute("date", date);
+		model.addAttribute("displayed_Date", service.japanese_Date(date));
+		model.addAttribute("name", service.name());
+		model.addAttribute("guide", "適用を選択して下さい");
+		action.setSubject(subject);
+		model.addAttribute("object", action);
+		model.addAttribute("field", action.getApply());
+		model.addAttribute("options", service.applys());
+		return "view";
+	}
+
+	@PostMapping("/ActionApply/Input")
+	public String actionApply_Input(
+			@RequestParam("post_date")String date,
+			@RequestParam("field")String apply,
+			@ModelAttribute("object")Action action,
+			Model model) {
+		add_View_Data_(model, "input", "適用入力");
+		model.addAttribute("url", "/ActionAccount/Select");
+		model.addAttribute("date", date);
+		model.addAttribute("displayed_Date", service.japanese_Date(date));
+		model.addAttribute("name", service.name());
+		model.addAttribute("guide", "適用を入力して下さい");
+		model.addAttribute("object", action);
+		model.addAttribute("field", apply);
+		return "view";
+	}
+
+	@PostMapping("/ActionAccount/Select")
+	public String actionAccount_Select(
+			@RequestParam("post_date")String date,
+			@RequestParam("field")String apply,
+			@ModelAttribute("object")Action action,
+			Model model) {
+		add_View_Data_(model, "select", "収支選択");
+		model.addAttribute("url", "/ActionAccount/Input");
+		model.addAttribute("date", date);
+		model.addAttribute("displayed_Date", service.japanese_Date(date));
+		model.addAttribute("name", service.name());
+		model.addAttribute("guide", "収支を選択して下さい");
+		action.setApply(apply);
+		model.addAttribute("object", action);
+		model.addAttribute("field", "");
+		model.addAttribute("options", service.accounts());
+		return "view";
+	}
+
+	@PostMapping("/ActionAccount/Input")
+	public String actionAccount_Input(
+			@RequestParam("post_date")String date,
+			@RequestParam("field")String account,
+			@ModelAttribute("object")Action action,
+			Model model) {
+		add_View_Data_(model, "input", "金額入力");
+		model.addAttribute("date", date);
+		model.addAttribute("displayed_Date", service.japanese_Date(date));
+		model.addAttribute("name", service.name());
+		model.addAttribute("guide", account +"金額を入力して下さい");
+		model.addAttribute("object", action);
+		switch (account) {
+			case "収入":
+				model.addAttribute("url", "/ActionIncome/Insert");
+				model.addAttribute("field", action.getIncome());
+				break;
+			case "支出":
+				model.addAttribute("url", "/ActionSpending/Insert");
+				model.addAttribute("field", action.getSpending());
+				break;
+		}
+		return "view";
+	}
+
+
 	@PostMapping("/Office/Insert")
 	public String office_Insert(
 			@RequestParam("post_id")int id,
@@ -122,11 +268,48 @@ public class AccountBookController {
 		return redirect("/OfficeSetting");
 	}
 
+	@PostMapping("/Subject/Insert")
+	public String subject_Insert(
+			@RequestParam("post_id")int id,
+			@ModelAttribute("subject")Subject subject,
+			RedirectAttributes redirectAttributes) {
+		String message = service.subject_Insert(subject, id);
+		redirectAttributes.addFlashAttribute("message", message);
+		return redirect("/SubjectSetting");
+	}
+
 	@PostMapping("/Action/Insert")
 	public String action_Insert(
 			@RequestParam("date")String date,
 			@ModelAttribute("action")Action action,
 			RedirectAttributes redirectAttributes) {
+		String message = service.action_Insert(action);
+		redirectAttributes.addFlashAttribute("message", message);
+		return redirect("/Daily?date=" + date);
+	}
+
+	@PostMapping("/ActionIncome/Insert")
+	public String actionIncome_Insert(
+			@RequestParam("post_date")String date,
+			@RequestParam("field")int income,
+			@ModelAttribute("object")Action action,
+			RedirectAttributes redirectAttributes) {
+		action.setIncome(income);
+		action.setSpending(0);
+		String message = service.action_Insert(action);
+		redirectAttributes.addFlashAttribute("message", message);
+		return redirect("/Daily?date=" + date);
+	}
+
+	@PostMapping("/ActionSpending/Insert")
+	public String actionSpending_Insert(
+			@RequestParam("post_date")String date,
+			@RequestParam("field")int spending,
+			@ModelAttribute("object")Action action,
+			RedirectAttributes redirectAttributes) {
+		action.setIncome(0);
+		action.setSpending(spending);
+		service.___consoleOut___(action.toString());
 		String message = service.action_Insert(action);
 		redirectAttributes.addFlashAttribute("message", message);
 		return redirect("/Daily?date=" + date);
@@ -168,7 +351,7 @@ public class AccountBookController {
 			RedirectAttributes redirectAttributes) {
 		String message = service.action_Update(action, id);
 		redirectAttributes.addFlashAttribute("message", message);
-		LocalDate localDate = service.to_LocalDate(date, "G y 年 M 月 d 日");
+		LocalDate localDate = service.to_LocalDate(date);
 		return redirect("/Daily?date=" + localDate);
 	}
 
