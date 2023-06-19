@@ -479,9 +479,27 @@ public class AccountBookController {
 		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
 		model.addAttribute("income", service.income_List(year, 12));
 		model.addAttribute("spending", service.spending_List(year, 12));
+		model.addAttribute("action_List", service.year_List(year, 1, subject));
 		if(subject  == null) subject = "全科目";
+		if(subject.equals("")) subject = "全科目";
 		model.addAttribute("subject", subject);
-		model.addAttribute("action_List", service.year_List(year, 1));
+		return "view";
+	}
+
+	@PostMapping("/Subject")
+	public String subject(
+			@RequestParam("year")String year,
+			@RequestParam("subject")String subject,
+			Model model) {
+		add_View_Data_(model, "subject", "科目指定");
+		if(year  == null) year = service.this_Year();
+		model.addAttribute("year", year);
+		model.addAttribute("name", service.name());
+		model.addAttribute("japanese_year", service.japanese_Date(year, "G y 年"));
+		model.addAttribute("guide", "科目を選択して下さい");
+		if(subject.equals("全科目")) subject = "";
+		model.addAttribute("subject", subject);
+		model.addAttribute("options", service.subjects());
 		return "view";
 	}
 

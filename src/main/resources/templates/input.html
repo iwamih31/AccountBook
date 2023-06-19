@@ -34,20 +34,19 @@
 				<input type="hidden" th:field="*{income}" />
 				<input type="hidden" th:field="*{spending}" />
 				<table class="center">
-						<tr>
-							<td class="guide">
-								[[${guide}]]
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<input type="text" name="field" th:value="${field}" />
-								<button form="input" type="submit" class="btn btn-primary">
-									次へ
-								</button>
-							</td>
-						</tr>
-					</tbody>
+					<tr>
+						<td class="guide">
+							[[${guide}]]
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="text" name="field" th:value="${field}" />
+							<button form="input" type="submit" class="btn btn-primary">
+								次へ
+							</button>
+						</td>
+					</tr>
 				</table>
 			</form>
 		</div>

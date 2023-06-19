@@ -417,7 +417,7 @@ public class AccountBookService {
 	public List<Action> year_List(LocalDate localDate, int volume, String subject) {
 		LocalDate start_date = localDate.withDayOfYear(1);
 		LocalDate end_date = start_date.plusYears(volume).minusDays(1);
-		if(subject.equals("全科目")) {
+		if(subject.equals("")) {
 			return actionRepository.action_List(start_date, end_date);
 		}
 		return actionRepository.action_List(start_date, end_date, subject);
@@ -437,8 +437,8 @@ public class AccountBookService {
 	}
 
 	public Object year_List(String year, int volume, String subject) {
-		// TODO 自動生成されたメソッド・スタブ
-		return null;
+		LocalDate localDate = to_LocalDate(year);
+		return year_List(localDate, volume, subject);
 	}
 
 	// date の月の1日から volume 月分の Action リストを返す

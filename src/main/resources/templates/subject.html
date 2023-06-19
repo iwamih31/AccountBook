@@ -3,36 +3,32 @@
 
 	<!-- library フラグメントの定義（JavaScript／CSS） -->
 	<th:block th:fragment="library">
-		<link rel="stylesheet" th:href="@{/css/main.css}">
+		<link rel="stylesheet" th:href="@{/css/list.css}">
 	</th:block>
-
 	<!--	main フラグメントの定義（メインコンテンツ）	-->
 	<div th:fragment="main">
-		<!--	タイトル表示	-->
 		<div class="header border-bottom">
+			<!--	タイトル表示	-->
 			<h1 class="h2">[[${title}]]</h1>
+			<!--	メッセージ表示	-->
+			<div class="flex">
+				<div th:if="${message}" class="alert arert-success">[[${message}]]</div>
+			</div>
 		</div>
-		<!--	操作系表示	-->
+		<!--	本体表示	-->
 		<div>
 			<div class="flex">
 				<div class="name">
-					[[${name}]]
+					 [[${name}]]
 				</div>
 			</div>
 			<div class="center margin_1em">
 				<div class="date">
-					[[${displayed_Date}]]
+					[[${year}]]
 				</div>
 			</div>
-
-			<form id="select" method="post" th:action="@{${req} + ${url}}" th:object="${object}">
-				<input type="hidden" name="post_date" th:value="${date}" />
-				<input type="hidden" th:field="*{id}" />
-				<input type="hidden" th:field="*{date}" />
-				<input type="hidden" th:field="*{subject}" />
-				<input type="hidden" th:field="*{apply}" />
-				<input type="hidden" th:field="*{income}" />
-				<input type="hidden" th:field="*{spending}" />
+			<form id="subject" method="post" th:action="@{${req} + '/Year'}">
+				<input type="hidden" name="year" th:value="${year}"/>
 				<table class="center">
 					<tr>
 						<td class="guide">
@@ -41,10 +37,10 @@
 					</tr>
 					<tr>
 						<td>
-							<select name="field" th:value="${field}" >
+							<select name="subject" th:value="${subject}">
 								<option th:each="option : ${options}" th:value="${option}">[[${option}]]</option>
 							</select>
-							<button form="select" type="submit" class="btn btn-primary">
+							<button form="subject" type="submit" class="btn btn-primary">
 								決定
 							</button>
 						</td>
@@ -52,9 +48,7 @@
 				</table>
 			</form>
 		</div>
-		<!--	トップページへのリンク	-->
 		<br>
 		<a th:href="@{/main}">メインページへ</a>
 	</div>
-
 </html>

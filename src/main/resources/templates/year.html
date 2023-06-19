@@ -48,6 +48,7 @@
 				　
 				<form id="subject" method="post" th:action="@{${req} + '/Subject'}">
 					<input type="hidden" name="year" th:value="${year}"/>
+					<input type="hidden" name="subject" th:value="${subject}"/>
 					<button form="subject" type="submit" class="btn btn-primary bg_green">
 						科目指定
 					</button>
