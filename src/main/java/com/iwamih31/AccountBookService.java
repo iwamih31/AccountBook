@@ -44,6 +44,14 @@ public class AccountBookService {
 		return actionRepository.action_List(start_date, end_date);
 	}
 
+	/** アクションリスト（月初めから date まで分） */
+	public List<Action> month_Till_Date(String date) {
+		LocalDate local_Date = to_LocalDate(date);
+		LocalDate start_date = local_Date.withDayOfMonth(1);
+		LocalDate end_date = local_Date;
+		return actionRepository.action_List(start_date, end_date);
+	}
+
 	public String name() {
 		List<String> name = officeRepository.item_value("事業所名");
 		if (name.isEmpty()) {
@@ -219,10 +227,6 @@ public class AccountBookService {
 		officeRepository.save(new Office(2, item_Names[1], ""));
 	}
 
-	private void set_Subject() {
-		subjectRepository.save(new Subject(1, "", ""));
-	}
-
 	/** 事業所データをExcelファイルとして出力 */
 	public String office_Output_Excel(HttpServletResponse response) {
 		Excel excel = new Excel();
@@ -241,6 +245,159 @@ public class AccountBookService {
 		}
 		message = excel.output_Excel("事業所", column_Names, column_Width, table_Data, response);
 		return message;
+	}
+
+	/** 出納帳（1日分）をExcelファイルとして出力 */
+	public String daily_Output_Excel(String date, HttpServletResponse response) {
+		Excel excel = new Excel();
+		String message = null;
+		int[] column_Width = Set.get_Value_Set(LabelSet.daily_Output_Set);
+		String[][] output_Data = to_Array(daily_Sheet(date));
+		String sheet_Name = date;
+		WorkSheet workSheet = new DailyWorkSheet(sheet_Name, column_Width, output_Data);
+
+		message = excel.output_Excel_Sheet("出納帳" + sheet_Name + "-", workSheet, response);
+		return message;
+	}
+
+	private List<String[]> daily_Sheet(String date) {
+		List<String[]> head_Rows = head_Rows_Daily(date);
+		String[] labels = Set.get_Name_Set(LabelSet.daily_Set);
+		List<String[]> data_Rows = data_Row_Values_Daily(date);
+		List<String[]> foot_Rows = foot_Rows_Daily();
+		return make_Sheet(head_Rows, labels, data_Rows, foot_Rows);
+	}
+
+	private List<String[]> head_Rows_Daily(String date) {
+		date = japanese_Date(date);
+		String com_ = office_item_value("事業所名");
+		String[][] head_Rows = {
+				{ "", com_, "", "", ""},
+				{ "", "", "", "", ""},
+				{ "", "", "", "", date}
+		};
+		return to_List(head_Rows);
+	}
+
+	private List<String[]> foot_Rows_Daily() {
+		String[][] head_Rows = {
+				{ "", "", "", "", ""},
+				{ "【領収証添付】", "", "", "", ""}
+		};
+		return to_List(head_Rows);
+	}
+
+	/** Excelシート（実績）作成用値データ */
+	public List<String[]> make_Sheet(
+			List<String[]> head_Rows,
+			String[] labels,
+			List<String[]> data_Rows,
+			List<String[]> foot_Rows) {
+		// 列追加用リスト作成
+		List<String[]> sheet_Array = new ArrayList<>();
+		// ヘッド部分追加
+		sheet_Array.addAll(head_Rows);
+		// ラベル行追加
+		sheet_Array.add(labels);
+		// データ行追加
+		sheet_Array.addAll(data_Rows);
+		// フッター部分追加
+		sheet_Array.addAll(foot_Rows);
+		return sheet_Array;
+	}
+
+	/** 表部分 データ行（１日分） */
+	List<String[]> data_Row_Values_Daily(String date) {
+		// その日のデータ取得
+		Map<String, Integer> account = account_Monthly(date);
+		Integer carryover = account.get("carryover");
+		Integer income_today = account.get("income_today");
+		Integer spending_today = account.get("spending_today");
+		Integer remainder = account.get("remainder");
+		Integer income_cumulative = account.get("income_cumulative");
+		Integer spending_cumulative = account.get("spending_cumulative");
+		// データ格納用リスト作成
+		List<String[]> data_Row_Values = new ArrayList<>();
+		data_Row_Values.add(data_Row_carryover(carryover));
+		// List<Action> を取得
+		List<Action> action_List = action_List(date);
+		// List<Action> があれば
+		if (action_List.size() > 0) {
+			// List<Action> 数分ループ
+			for (Action action : action_List) {
+				// Actionに応じた行を作成
+				data_Row_Values.add(data_Row_Daily(action));
+			}
+		}
+		data_Row_Values.add(data_Row_total(income_today, spending_today, remainder));
+		data_Row_Values.add(data_Row_cumulative(income_cumulative, spending_cumulative));
+		return data_Row_Values;
+	}
+
+	private String[] data_Row_carryover(int carryover) {
+		return new String[] {"", "前月繰越", "", "", make_String(carryover)};
+	}
+
+	private String[] 	data_Row_Daily(Action action) {
+		return new String[] {
+				make_String(action.getSubject()),
+				make_String(action.getApply()),
+				make_String(Zero_Blank(action.getIncome())),
+				make_String(action.getSpending()),
+				make_String("")
+			};
+	}
+
+	private String[] data_Row_total(Integer income_today, Integer spending_today, Integer remainder) {
+		return new String[] {
+				"",
+				"計",
+				make_String(income_today),
+				make_String(spending_today),
+				make_String(remainder)
+			};
+	}
+
+	private String[] data_Row_cumulative(Integer income_cumulative, Integer spending_cumulative) {
+		return new String[] {"", "累計", make_String(income_cumulative), make_String(spending_cumulative), ""};
+	}
+
+	private Object Zero_Blank(int number) {
+		if (number == 0) return "";
+		return number;
+	}
+
+	private String make_String(Object object) {
+		String make_String = "";
+		if (object != null)
+			make_String = String.valueOf(object);
+		return make_String;
+	}
+
+	private String[][] to_Array(List<String[]> list) {
+		// Listから2次配列へ変換
+		String[][] array = new String[list.size()][];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = list.get(i);
+		}
+		return array;
+	}
+
+	private List<String[]> to_List(String[][] array) {
+		// Listから2次配列へ変換
+		List<String[]> list = new ArrayList<>();
+		for (int i = 0; i < array.length; i++) {
+			list.add(array[i]);
+		}
+		return list;
+	}
+
+	private String office_item_value(String item_name) {
+		String value = "";
+		List<String> item_value = officeRepository.item_value(item_name);
+		if (item_value.size() > 0)
+			value = officeRepository.item_value(item_name).get(0);
+		return value;
 	}
 
 	/** List の最後の Element を返すジェネリックメソッド */
@@ -494,6 +651,35 @@ public class AccountBookService {
 		account.put("spending_today", spending_today);
 		account.put("income_tihs_year", income_tihs_year);
 		account.put("spending_tihs_year", spending_tihs_year);
+		account.put("balance", balance);
+		return account;
+	}
+
+	public Map<String, Integer> account_Monthly(String date) {
+		Map<String, Integer> account = new HashMap<>();
+		int carryover = carryover(date);
+		int remainder = remainder(date);
+		int income_today = 0;
+		int spending_today = 0;
+		int income_cumulative = 0;
+		int spending_cumulative = 0;
+		int balance = cash_Balance(date, cash(date));
+		List<Action> today_List = action_List(date);
+		for (Action action : today_List) {
+			income_today += action.getIncome();
+			spending_today += action.getSpending();
+		}
+		List<Action> monthly_List = month_Till_Date(date);
+		for (Action action : monthly_List) {
+			income_cumulative += action.getIncome();
+			spending_cumulative += action.getSpending();
+		}
+		account.put("carryover", carryover);
+		account.put("remainder", remainder);
+		account.put("income_today", income_today);
+		account.put("spending_today", spending_today);
+		account.put("income_cumulative", income_cumulative);
+		account.put("spending_cumulative", spending_cumulative);
 		account.put("balance", balance);
 		return account;
 	}

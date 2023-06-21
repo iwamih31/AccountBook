@@ -412,7 +412,7 @@ public class AccountBookController {
 			RedirectAttributes redirectAttributes) {
 		String message = service.office_Output_Excel(httpServletResponse);
 		redirectAttributes.addFlashAttribute("message", message);
-		return redirect("/CareRecord/OfficeReport");
+		return redirect("/OfficeReport");
 	}
 
 	@PostMapping("/LastMonth")
@@ -515,6 +515,16 @@ public class AccountBookController {
 		return "view";
 	}
 
+	@PostMapping("/Daily/Output/Excel")
+	public String daily_Output_Excel(
+			@RequestParam("date") String date,
+			HttpServletResponse httpServletResponse,
+			RedirectAttributes redirectAttributes) {
+		String message = service.daily_Output_Excel(date, httpServletResponse);
+		redirectAttributes.addFlashAttribute("message", message);
+	return redirect("/Daily?date=" + date);
+	}
+
 	@PostMapping("/Daily")
 	public String daily(
 			@RequestParam("date") String date) {
@@ -531,7 +541,7 @@ public class AccountBookController {
 		model.addAttribute("japanese_Date", service.japanese_Date(date));
 		model.addAttribute("name", service.name());
 		model.addAttribute("action_List", service.action_List(date));
-		model.addAttribute("account", service.account(date));
+		model.addAttribute("account", service.account_Monthly(date));
 		model.addAttribute("label_Set_List", LabelSet.daily_Set);
 		return "view";
 	}

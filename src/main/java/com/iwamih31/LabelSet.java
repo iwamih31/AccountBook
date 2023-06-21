@@ -10,6 +10,14 @@ public class LabelSet {
 			set("残高",		7)
 		};
 
+	public static Set[] daily_Output_Set = {
+			set("科目",	 10),
+			set("適用",	 25),
+			set("収入",	  7),
+			set("支出",		7),
+			set("残高",		7)
+	};
+
 	public static Set[] action_List_Set = {
 			set("日付",		8),
 			set("科目",		10),
