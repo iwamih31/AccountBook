@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -224,6 +225,8 @@ public class Excel {
 			// フォント格納用リストにフォントをセット
 			fonts.add(font);
 		}
+		// 数値の表示形式設定用object
+		DataFormat dataFormat = workbook.createDataFormat();
 		// 行ループ
 		for (int i = 0; i < row_Size; i++) {
 			// 行を定義
@@ -255,6 +258,8 @@ public class Excel {
 				Font font = fonts.get(font_Num);
 				// 決定したフォントを cellStyle にセット
 				cellStyle.setFont(font);
+				// 数値の表示形式を設定
+				cellStyle.setDataFormat(dataFormat.getFormat(row_Map.get("dataFormat")[0]));
 				// 背景色指定
 				if (row_Map.get("bg_color") != null) {
 					bg_color_Apply(cellStyle, row_Map.get("bg_color")[0]);
@@ -272,7 +277,7 @@ public class Excel {
 					int[] column_Width = work_Sheet.getColumn_Width();
 					if (column_Width != null) {
 						// 列幅設定（1文字分の横幅 × 文字数 ＋ 微調整分の幅）
-						sheet.setColumnWidth(j, 380 * column_Width[j] + 0);
+						sheet.setColumnWidth(j, 512 * column_Width[j] + 0);
 					}
 					// 列幅設定（オート）
 					// sheet.autoSizeColumn(j);
@@ -284,22 +289,26 @@ public class Excel {
 				}
 			}
 		}
-//		sheet.setColumnBreak(7); // 改ページ位置設定
-//		sheet.removeColumnBreak(4);
 
-		PrintSetup printSetup = sheet.getPrintSetup();
-    printSetup.setLandscape(work_Sheet.printSetup);
-		printSetup.setFitWidth((short) 1);
-		printSetup.setFitHeight((short) 1);
-		sheet.setAutobreaks(true);
-
-
+//		// 全改ページ位置削除
 //		for (int rowBreak : sheet.getRowBreaks()) {
-//	    sheet.removeRowBreak(rowBreak);
-//	}
+//			sheet.removeRowBreak(rowBreak);
+//		}
 //		for (int colBreak : sheet.getColumnBreaks()) {
-//	    sheet.removeColumnBreak(colBreak);
-//	}
+//			sheet.removeColumnBreak(colBreak);
+//		}
+//
+//		sheet.setColumnBreak(7); // 改ページ位置設定
+//		sheet.removeColumnBreak(4); // 改ページ位置削除
+
+		// 印刷設定
+		PrintSetup printSetup = sheet.getPrintSetup();
+		printSetup.setScale((short) 72); // 印刷のサイズを72％に設定
+		printSetup.setLandscape(work_Sheet.printSetup); // 縦横設定
+
+//		printSetup.setFitWidth((short) 1); // 全列を1ページに
+//		printSetup.setFitHeight((short) 0); // 全行のページ数は指定しない
+//		sheet.setAutobreaks(true);
 
 		___console_Out___("sheet_Making() 終了");
 		return sheet;

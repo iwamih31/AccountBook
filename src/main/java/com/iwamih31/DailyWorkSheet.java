@@ -53,10 +53,10 @@ public class DailyWorkSheet extends WorkSheet{
 		Map<String, String> font1 = new HashMap<>();
 		// フォント0
 		font0.put("fontName", "游ゴシック");
-		font0.put("fontHeight", "200");
+		font0.put("fontHeight", "250");
 		// フォント1
 		font1.put("fontName", "游ゴシック");
-		font1.put("fontHeight", "250");
+		font1.put("fontHeight", "300");
 		fonts.add(font0);
 		fonts.add(font1);
 		return fonts;
@@ -71,6 +71,7 @@ public class DailyWorkSheet extends WorkSheet{
 			// default の値
 			int height = 400;
 			int font = 0;
+			String dataFormat = "G/標準";
 			short bg_color = IndexedColors.AUTOMATIC.getIndex();
 			String[] border = {"  ","  ","  ","  ","  ","  ","  ","  "};
 			String[] align = {"  ","  ","  ","  ","  ","  ","  ","  "};
@@ -99,14 +100,17 @@ public class DailyWorkSheet extends WorkSheet{
 						align = label_Align_;
 						break;
 					default: // その他（データ行）の場合
+						dataFormat = "#,##0";
 						border = data__Border;
 						align = data__Align_;
 				}
 			} else if (i == row_Size - 2) { // 最後から2行目（フッター1行目）の場合
+				dataFormat = "#,##0";
 				height = 400;
 				border = foot_1_Border;
 				align = foot_1_Align_;
 			} else if (i == row_Size - 1) { // 最後から1行目（フッター2行目）の場合
+				dataFormat = "#,##0";
 				height = 400;
 				border = foot_2_Border;
 				align = foot_2_Align_;
@@ -116,6 +120,7 @@ public class DailyWorkSheet extends WorkSheet{
 			row_Map.put("align", align);
 			row_Map.put("height", array(height));
 			row_Map.put("font", array(font));
+			row_Map.put("dataFormat", array(dataFormat));
 			row_Map.put("bg_color", array(bg_color));
 			row_Format.add(row_Map);
 		}
