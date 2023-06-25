@@ -252,19 +252,38 @@ public class AccountBookService {
 		Excel excel = new Excel();
 		String message = null;
 		int[] column_Width = Set.get_Value_Set(LabelSet.daily_Output_Set);
-		String[][] output_Data = to_Array(daily_Sheet(date));
+		String[][] output_Data = daily_Sheet(date);
 		String sheet_Name = date;
 		WorkSheet workSheet = new DailyWorkSheet(sheet_Name, column_Width, output_Data);
-
 		message = excel.output_Excel_Sheet("出納帳" + sheet_Name + "-", workSheet, response);
 		return message;
 	}
 
-	private List<String[]> daily_Sheet(String date) {
+	/** 月別出納一覧をExcelファイルとして出力 */
+	public String monthly_Output_Excel(String date, HttpServletResponse response) {
+		Excel excel = new Excel();
+		String message = null;
+		int[] column_Width = Set.get_Value_Set(LabelSet.monthly_Output_Set);
+		String[][] output_Data = monthly_Sheet(date);
+		String sheet_Name = japanese_Date(date, "M月");
+		WorkSheet workSheet = new MonthlyWorkSheet(sheet_Name, column_Width, output_Data);
+		message = excel.output_Excel_Sheet("現金出納帳出納帳" + japanese_Year(date) + "-", workSheet, response);
+		return message;
+	}
+
+	private String[][] daily_Sheet(String date) {
 		List<String[]> head_Rows = head_Rows_Daily(date);
 		String[] labels = Set.get_Name_Set(LabelSet.daily_Set);
 		List<String[]> data_Rows = data_Row_Values_Daily(date);
 		List<String[]> foot_Rows = foot_Rows_Daily();
+		return make_Sheet(head_Rows, labels, data_Rows, foot_Rows);
+	}
+
+	private String[][] monthly_Sheet(String date) {
+		List<String[]> head_Rows = head_Rows_Monthly(date);
+		String[] labels = Set.get_Name_Set(LabelSet.monthly_Set);
+		List<String[]> data_Rows = data_Row_Values_Monthly(date);
+		List<String[]> foot_Rows = new ArrayList<>();
 		return make_Sheet(head_Rows, labels, data_Rows, foot_Rows);
 	}
 
@@ -279,6 +298,16 @@ public class AccountBookService {
 		return to_List(head_Rows);
 	}
 
+	private List<String[]> head_Rows_Monthly(String date) {
+		date = japanese_Date(date, "Gy年M月分");
+		String com_ = office_item_value("事業所名");
+		String[][] head_Rows = {
+				{ date, "", "", "", com_, ""},
+				{ "", "", "", "", "", ""}
+		};
+		return to_List(head_Rows);
+	}
+
 	private List<String[]> foot_Rows_Daily() {
 		String[][] head_Rows = {
 				{ "", "", "", "", ""},
@@ -288,22 +317,22 @@ public class AccountBookService {
 	}
 
 	/** Excelシート（実績）作成用値データ */
-	public List<String[]> make_Sheet(
+	public String[][] make_Sheet(
 			List<String[]> head_Rows,
 			String[] labels,
 			List<String[]> data_Rows,
 			List<String[]> foot_Rows) {
 		// 列追加用リスト作成
-		List<String[]> sheet_Array = new ArrayList<>();
+		List<String[]> sheet_Rows = new ArrayList<>();
 		// ヘッド部分追加
-		sheet_Array.addAll(head_Rows);
+		sheet_Rows.addAll(head_Rows);
 		// ラベル行追加
-		sheet_Array.add(labels);
+		sheet_Rows.add(labels);
 		// データ行追加
-		sheet_Array.addAll(data_Rows);
+		sheet_Rows.addAll(data_Rows);
 		// フッター部分追加
-		sheet_Array.addAll(foot_Rows);
-		return sheet_Array;
+		sheet_Rows.addAll(foot_Rows);
+		return to_Array(sheet_Rows);
 	}
 
 	/** 表部分 データ行（１日分） */
@@ -318,7 +347,7 @@ public class AccountBookService {
 		Integer spending_cumulative = account.get("spending_cumulative");
 		// データ格納用リスト作成
 		List<String[]> data_Row_Values = new ArrayList<>();
-		data_Row_Values.add(data_Row_carryover(carryover));
+		data_Row_Values.add(data_Row_Daily_carryover(carryover));
 		// List<Action> を取得
 		List<Action> action_List = action_List(date);
 		// List<Action> があれば
@@ -334,8 +363,39 @@ public class AccountBookService {
 		return data_Row_Values;
 	}
 
-	private String[] data_Row_carryover(int carryover) {
-		return new String[] {"", "前月繰越", "", "", make_String(carryover)};
+	/** 表部分 データ行（ひと月分） */
+	List<String[]> data_Row_Values_Monthly(String date) {
+		Integer carryover = carryover(date);
+		Integer remainder = carryover;
+		Integer income_cumulative = 0;
+		Integer spending_cumulative = 0;
+		// データ格納用リスト作成
+		List<String[]> data_Row_Values = new ArrayList<>();
+		data_Row_Values.add(data_Row_Monthly_carryover(carryover));
+		// List<Action> を取得
+		List<Action> action_List = action_List_Monthly(date);
+		// List<Action> があれば
+		if (action_List.size() > 0) {
+			// List<Action> 数分ループ
+			for (Action action : action_List) {
+				income_cumulative += action.getIncome();
+				spending_cumulative += action.getSpending();
+				remainder = carryover + income_cumulative - spending_cumulative;
+				// Actionに応じた行を作成
+				data_Row_Values.add(data_Row_Monthly(action, remainder));
+			}
+		}
+		data_Row_Values.add(data_Row_carried_forward(remainder));
+		data_Row_Values.add(data_Row_total_amount(income_cumulative, spending_cumulative));
+		return data_Row_Values;
+	}
+
+	private String[] data_Row_Daily_carryover(int carryover) {
+		return new String[] {"", "前日繰越", "", "", make_String(carryover)};
+	}
+
+	private String[] data_Row_Monthly_carryover(int carryover) {
+		return new String[] {"", "", "前日繰越", "", "", make_String(carryover)};
 	}
 
 	private String[] 	data_Row_Daily(Action action) {
@@ -343,9 +403,20 @@ public class AccountBookService {
 				make_String(action.getSubject()),
 				make_String(action.getApply()),
 				make_String(Zero_Blank(action.getIncome())),
-				make_String(action.getSpending()),
+				make_String(Zero_Blank(action.getSpending())),
 				make_String("")
 			};
+	}
+
+	private String[] 	data_Row_Monthly(Action action, Integer remainder) {
+		return new String[] {
+				japanese_Date(action.getDate().toString(), "M月d日"),
+				make_String(action.getSubject()),
+				make_String(action.getApply()),
+				make_String(Zero_Blank(action.getIncome())),
+				make_String(Zero_Blank(action.getSpending())),
+				make_String(remainder)
+		};
 	}
 
 	private String[] data_Row_total(Integer income_today, Integer spending_today, Integer remainder) {
@@ -358,8 +429,23 @@ public class AccountBookService {
 			};
 	}
 
+	private String[] data_Row_total_amount(Integer income_cumulative, Integer spending_cumulative) {
+		return new String[] {
+				"",
+				"",
+				"合計",
+				make_String(income_cumulative),
+				make_String(spending_cumulative),
+				""
+		};
+	}
+
 	private String[] data_Row_cumulative(Integer income_cumulative, Integer spending_cumulative) {
 		return new String[] {"", "累計", make_String(income_cumulative), make_String(spending_cumulative), ""};
+	}
+
+	private String[] data_Row_carried_forward(Integer remainder) {
+		return new String[] {"", "", "翌月繰越", "", "", make_String(remainder)};
 	}
 
 	private Object Zero_Blank(int number) {
@@ -557,6 +643,7 @@ public class AccountBookService {
 		return income_total - spending_total;
 	}
 
+	/** 1日前の残高を返す */
 	public int carryover(String date) {
 		LocalDate localDate = to_LocalDate(date);
 		String yesterday = localDate.minusDays(1).toString();
@@ -574,7 +661,7 @@ public class AccountBookService {
 	public List<Action> year_List(LocalDate localDate, int volume, String subject) {
 		LocalDate start_date = localDate.withDayOfYear(1);
 		LocalDate end_date = start_date.plusYears(volume).minusDays(1);
-		if(subject.equals("")) {
+		if(subject == null || subject.equals("")) {
 			return actionRepository.action_List(start_date, end_date);
 		}
 		return actionRepository.action_List(start_date, end_date, subject);

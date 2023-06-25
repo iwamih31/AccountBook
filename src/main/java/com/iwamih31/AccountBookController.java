@@ -443,7 +443,7 @@ public class AccountBookController {
 			@Param("year_month")String date,
 			Model model) {
 		add_View_Data_(model, "monthly", "月別出納一覧");
-		if(date  == null) date = service.today();
+		if(date  == null) date = service.this_Year_Month();
 		model.addAttribute("name", service.name());
 		model.addAttribute("date", date);
 		model.addAttribute("japanese_Date", service.japanese_Date(date, "G y 年 M 月"));
@@ -523,6 +523,16 @@ public class AccountBookController {
 		String message = service.daily_Output_Excel(date, httpServletResponse);
 		redirectAttributes.addFlashAttribute("message", message);
 	return redirect("/Daily?date=" + date);
+	}
+
+	@PostMapping("/Monthly/Output/Excel")
+	public String monthly_Output_Excel(
+			@RequestParam("date") String date,
+			HttpServletResponse httpServletResponse,
+			RedirectAttributes redirectAttributes) {
+		String message = service.monthly_Output_Excel(date, httpServletResponse);
+		redirectAttributes.addFlashAttribute("message", message);
+		return redirect("/Monthly?date=" + date);
 	}
 
 	@PostMapping("/Daily")

@@ -23,7 +23,7 @@
 				<div class="name">
 					 [[${name}]]
 				</div>
-				<form id="output" method="post" th:action="@{${req} + '/Daily/Output/Excel'}">
+				<form id="output" method="post" th:action="@{${req} + '/Monthly/Output/Excel'}">
 					<input type="hidden" name="date" th:value="${date}"/>
 					<button form="output" type="submit" class="btn btn-primary">
 						Excel出力
@@ -62,7 +62,6 @@
 														th:width="${label_Set.value * 1.5} + '%'">
 							[[${label_Set.name}]]
 						</th>
-						<th class="th-width"></th>
 					</tr>
 				</thead>
 				<tbody>

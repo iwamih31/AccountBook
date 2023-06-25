@@ -303,7 +303,7 @@ public class Excel {
 
 		// 印刷設定
 		PrintSetup printSetup = sheet.getPrintSetup();
-		printSetup.setScale((short) 72); // 印刷のサイズを72％に設定
+		printSetup.setScale((short) work_Sheet.print_Scale); // 印刷のサイズを設定
 		printSetup.setLandscape(work_Sheet.printSetup); // 縦横設定
 
 //		printSetup.setFitWidth((short) 1); // 全列を1ページに

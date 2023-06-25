@@ -28,6 +28,7 @@ public class WorkSheet {
 	protected String sheet_Name;
 	protected int[] column_Width;
 	protected String[][] value_Data;
+	protected int print_Scale = 100;
 	//印刷の向き（横にする場合は true）
 	protected boolean printSetup = false;
 
