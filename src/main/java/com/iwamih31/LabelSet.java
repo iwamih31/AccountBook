@@ -10,15 +10,6 @@ public class LabelSet {
 			set("残高",		7)
 		};
 
-	public static Set[] monthly_Set = {
-			set("日付",	 10),
-			set("科目",	 10),
-			set("適用",	 25),
-			set("収入",	  7),
-			set("支出",		7),
-			set("残高",		7)
-	};
-
 	public static Set[] daily_Output_Set = {
 			set("科目",	 10),
 			set("適用",	 25),
@@ -28,6 +19,15 @@ public class LabelSet {
 	};
 
 	public static Set[] monthly_Output_Set = {
+			set("日付",	 7),
+			set("科目",	 10),
+			set("適用",	 15),
+			set("収入",	  7),
+			set("支出",		7),
+			set("残高",		7)
+	};
+
+	public static Set[] year_Output_Set = {
 			set("日付",	 7),
 			set("科目",	 10),
 			set("適用",	 15),

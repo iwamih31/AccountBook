@@ -1,6 +1,7 @@
 package com.iwamih31;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -447,11 +448,12 @@ public class AccountBookController {
 		model.addAttribute("name", service.name());
 		model.addAttribute("date", date);
 		model.addAttribute("japanese_Date", service.japanese_Date(date, "G y 年 M 月"));
-		model.addAttribute("action_List", service.monthly_List(date, 1));
 		model.addAttribute("carryover", service.carryover(date));
+		List<Action> action_List = service.monthly_List(date, 1);
+		model.addAttribute("action_List", action_List);
+		model.addAttribute("income", service.income_List(action_List));
+		model.addAttribute("spending",service.spending_List(action_List));
 		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
-		model.addAttribute("income", service.income_List(date, 1));
-		model.addAttribute("spending",service.spending_List(date, 1));
 		return "view";
 	}
 
@@ -476,10 +478,11 @@ public class AccountBookController {
 		model.addAttribute("year", service.japanese_Date(year, "G y 年"));
 		year += "/01";
 		model.addAttribute("carryover", service.carryover(year));
+		List<Action> action_List = service.year_List(year, 1, subject);
+		model.addAttribute("action_List", action_List);
+		model.addAttribute("income", service.income_List(action_List));
+		model.addAttribute("spending", service.spending_List(action_List));
 		model.addAttribute("label_Set_List", LabelSet.action_List_Set);
-		model.addAttribute("income", service.income_List(year, 12));
-		model.addAttribute("spending", service.spending_List(year, 12));
-		model.addAttribute("action_List", service.year_List(year, 1, subject));
 		if(subject  == null) subject = "全科目";
 		if(subject.equals("")) subject = "全科目";
 		model.addAttribute("subject", subject);
@@ -533,6 +536,17 @@ public class AccountBookController {
 		String message = service.monthly_Output_Excel(date, httpServletResponse);
 		redirectAttributes.addFlashAttribute("message", message);
 		return redirect("/Monthly?date=" + date);
+	}
+
+	@PostMapping("/Year/Output/Excel")
+	public String year_Output_Excel(
+			@RequestParam("year") String date,
+			@RequestParam("subject")String subject,
+			HttpServletResponse httpServletResponse,
+			RedirectAttributes redirectAttributes) {
+		String message = service.year_Output_Excel(date, subject, httpServletResponse);
+		redirectAttributes.addFlashAttribute("message", message);
+		return redirect("/Year?date=" + date);
 	}
 
 	@PostMapping("/Daily")

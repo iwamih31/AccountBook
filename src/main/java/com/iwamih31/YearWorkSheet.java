@@ -7,21 +7,21 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.IndexedColors;
 
-public class DailyWorkSheet extends WorkSheet{
+public class YearWorkSheet extends WorkSheet{
 
 	// コンストラクター
-	public DailyWorkSheet() {
+	public YearWorkSheet() {
 		// 印刷時のサイズ
-		print_Scale = 72;
+		print_Scale = 78;
 		// 印刷向きを縦にする
 		this.printSetup = false;
 	}
-	public DailyWorkSheet(String sheet_Name, int[] column_Width, String[][] value_Data) {
+	public YearWorkSheet(String sheet_Name, int[] column_Width, String[][] value_Data) {
 		this.sheet_Name = sheet_Name;
 		this.column_Width = column_Width;
 		this.value_Data = value_Data;
 		// 印刷時のサイズ
-		print_Scale = 72;
+		print_Scale = 78;
 		// 印刷向きを縦にする
 		this.printSetup = false;
 	}
@@ -30,28 +30,25 @@ public class DailyWorkSheet extends WorkSheet{
 	// 位置（"｜","CS","DD","FL","JY","←","→"）
 	// １行目
 	String[] row_1_Border = {"  ","  ","  ","  ","  ","  ","  ","  "}; // 罫線
-	String[] row_1_Align_ = {"  ","→","  ","  ","  ","  ","  ","  "}; // 位置
+	String[] row_1_Align_ = {"  ","  ","  ","  ","→","  ","  ","  "}; // 位置
 	// ２行目
 	String[] row_2_Border = {"  ","  ","  ","  ","  ","  ","  ","  "}; // 罫線
 	String[] row_2_Align_ = {"  ","  ","  ","  ","  ","  ","  ","  "}; // 位置
-	// ３行目
-	String[] row_3_Border = {"  ","  ","  ","  ","  ","  ","  ","  "}; // 罫線
-	String[] row_3_Align_ = {"  ","  ","  ","  ","→","  ","  ","  "}; // 位置
-	// ４行目（ラベル行）
+	// ３行目（ラベル行）
 	String[] label_Border = {"□","□","□","□","□","□","□","□"}; // 罫線
 	String[] label_Align_ = {"｜","｜","｜","｜","｜","｜","｜","｜"}; // 位置
-	// 集計行
-	String[] total_Border = {"匚","コ","□","□","□","□","□","□"}; // 罫線
-	String[] total_Align_ = {"｜","｜","→","→","→","｜","｜","｜"}; // 位置
-	// フッター行 1行目
-	String[] foot_1_Border = {"  ","  ","  ","  ","  ","  ","  ","  "}; // 罫線
-	String[] foot_1_Align_ = {"  ","  ","  ","  ","  ","  ","  ","  "}; // 位置
-	// フッター行 2行目
-	String[] foot_2_Border = {"  ","  ","  ","  ","  ","  ","  ","  "}; // 罫線
-	String[] foot_2_Align_ = {"  ","  ","  ","  ","  ","  ","  ","  "}; // 位置
+	// 前月繰越行
+	String[] row_4_Border = {"□","□","□","□","□","□","□","□"}; // 罫線
+	String[] row_4_Align_ = {"  ","  ","｜","→","→","→","｜","｜"}; // 位置
+	// 翌月繰り越し行
+	String[] foot_1_Border = {"□","□","□","□","□","□","□","□"}; // 罫線
+	String[] foot_1_Align_ = {"  ","  ","｜","→","→","→","｜","｜"}; // 位置
+	// 合計行
+	String[] foot_2_Border = {"□","匚","コ","□","□","□","□","□"}; // 罫線
+	String[] foot_2_Align_ = {"  ","  ","→","→","→","→","｜","｜"}; // 位置
 	// その他（データ行）
 	String[] data__Border = {"□","□","□","□","□","□","□","□"}; // 罫線
-	String[] data__Align_ = {"  ","  ","→","→","→","｜","｜","｜"}; // 位置
+	String[] data__Align_ = {"→","  ","  ","→","→","→","｜","｜"}; // 位置
 
 	/** フォント定義用 Map リスト */
 	public List<Map<String, String>> fonts(){
@@ -82,7 +79,7 @@ public class DailyWorkSheet extends WorkSheet{
 			short bg_color = IndexedColors.AUTOMATIC.getIndex();
 			String[] border = {"  ","  ","  ","  ","  ","  ","  ","  "};
 			String[] align = {"  ","  ","  ","  ","  ","  ","  ","  "};
-			if (i < row_Size - 4) {
+			if (i < row_Size - 2) {
 				switch (i + 1) {
 					case 1: // １行目の場合
 						font = 1;
@@ -92,46 +89,31 @@ public class DailyWorkSheet extends WorkSheet{
 						break;
 					case 2: // ２行目の場合
 						font = 1;
-						height = 200;
+						height = 100;
 						border = row_2_Border;
 						align = row_2_Align_;
 						break;
-					case 3: // ３行目の場合
-						height = 400;
-						border = row_3_Border;
-						align = row_3_Align_;
-						break;
-					case 4: // ４行目（ラベル行）の場合
+					case 3: // ３行目（ラベル行）の場合
 						bg_color = IndexedColors.GREY_25_PERCENT.getIndex();
 						border = label_Border;
 						align = label_Align_;
 						break;
-					case 5: // ５行目（前日繰越行）の場合
+					case 4: // ４行目（前月繰越行）の場合
 						dataFormat = "#,##0";
-						border = total_Border;
-						align = total_Align_;
+						border = row_4_Border;
+						align = row_4_Align_;
 						break;
 					default: // その他（データ行）の場合
 						dataFormat = "#,##0";
 						border = data__Border;
 						align = data__Align_;
 				}
-			} else if (i == row_Size - 4) { // 最後から4行目（合計行）の場合
-				dataFormat = "#,##0";
-				height = 400;
-				border = total_Border;
-				align = total_Align_;
-			} else if (i == row_Size - 3) { // 最後から3行目（累計行）の場合
-				dataFormat = "#,##0";
-				height = 400;
-				border = total_Border;
-				align = total_Align_;
-			} else if (i == row_Size - 2) { // 最後から2行目（フッター1行目）の場合
+			} else if (i == row_Size - 2) { // 最後から2行目（翌月繰り越し行）の場合
 				dataFormat = "#,##0";
 				height = 400;
 				border = foot_1_Border;
 				align = foot_1_Align_;
-			} else if (i == row_Size - 1) { // 最後から1行目（フッター2行目）の場合
+			} else if (i == row_Size - 1) { // 最後から1行目（合計行）の場合
 				dataFormat = "#,##0";
 				height = 400;
 				border = foot_2_Border;

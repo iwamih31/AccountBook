@@ -25,6 +25,7 @@
 				</div>
 				<form id="output" method="post" th:action="@{${req} + '/Year/Output/Excel'}">
 					<input type="hidden" name="year" th:value="${year}"/>
+					<input type="hidden" name="subject" th:value="${subject}"/>
 					<button form="output" type="submit" class="btn btn-primary">
 						Excel出力
 					</button>
