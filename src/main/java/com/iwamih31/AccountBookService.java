@@ -26,8 +26,6 @@ public class AccountBookService {
 	private OfficeRepository officeRepository;
 	@Autowired
 	private CashRepository cashRepository;
-	@Autowired
-	private SubjectRepository subjectRepository;
 
 	/** アクションリスト（1日分） */
 	public List<Action> action_List(String date) {
@@ -80,19 +78,6 @@ public class AccountBookService {
 		String message = "ID = " + office_Item.getId() + " の事業所データ登録";
 		try {
 			officeRepository.save(office_Item);
-			message += "が完了しました";
-		} catch (Exception e) {
-			message += "が正常に行われませんでした";
-			e.printStackTrace();
-		}
-		return message;
-	}
-
-	public String subject_Insert(Subject subject_Item, int id) {
-		subject_Item.setId(id);
-		String message = "ID = " + subject_Item.getId() + " の科目データ登録";
-		try {
-			subjectRepository.save(subject_Item);
 			message += "が完了しました";
 		} catch (Exception e) {
 			message += "が正常に行われませんでした";
@@ -162,19 +147,11 @@ public class AccountBookService {
 		return officeRepository.findAll();
 	}
 
-	public List<Subject> subject_Report() {
-		return subjectRepository.findAll();
-	}
-
 	public Office new_Office() {
 		Office new_Office = new Office(next_Office_Id(), "", "");
 		if (new_Office.getId() == 1)
 			set_Office();
 		return new Office(next_Office_Id(), "", "");
-	}
-
-	public Subject new_Subject() {
-		return new Subject(next_Subject_Id(), "", "");
 	}
 
 	public Action new_Action() {
@@ -191,15 +168,6 @@ public class AccountBookService {
 		if (lastElement != null)
 			nextId = lastElement.getId() + 1;
 		___consoleOut___("next_Office_Id = " + nextId);
-		return nextId;
-	}
-
-	public int next_Subject_Id() {
-		int nextId = 1;
-		Subject lastElement = getLastElement(subjectRepository.findAll());
-		if (lastElement != null)
-			nextId = lastElement.getId() + 1;
-		___consoleOut___("next_Subject_Id = " + nextId);
 		return nextId;
 	}
 

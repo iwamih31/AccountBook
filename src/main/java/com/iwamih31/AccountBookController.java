@@ -87,29 +87,12 @@ public class AccountBookController {
 		return "view";
 	}
 
-	@GetMapping("/SubjectSetting")
-	public String subjectSetting(
-			Model model) {
-		add_View_Data_(model, "subjectSetting", "科目設定");
-		model.addAttribute("subjectList", service.subject_Report());
-		return "view";
-	}
-
 	@GetMapping("/OfficeInsert")
 	public String officeInsert(
 			Model model) {
 		add_View_Data_(model, "officeInsert", "新規項目追加");
 		model.addAttribute("office", service.new_Office());
 		model.addAttribute("next_id", service.next_Office_Id());
-		return "view";
-	}
-
-	@GetMapping("/SubjectInsert")
-	public String subjectInsert(
-			Model model) {
-		add_View_Data_(model, "subjectInsert", "新規項科目追加");
-		model.addAttribute("subject", service.new_Subject());
-		model.addAttribute("next_id", service.next_Subject_Id());
 		return "view";
 	}
 
@@ -267,16 +250,6 @@ public class AccountBookController {
 		String message = service.office_Insert(office, id);
 		redirectAttributes.addFlashAttribute("message", message);
 		return redirect("/OfficeSetting");
-	}
-
-	@PostMapping("/Subject/Insert")
-	public String subject_Insert(
-			@RequestParam("post_id")int id,
-			@ModelAttribute("subject")Subject subject,
-			RedirectAttributes redirectAttributes) {
-		String message = service.subject_Insert(subject, id);
-		redirectAttributes.addFlashAttribute("message", message);
-		return redirect("/SubjectSetting");
 	}
 
 	@PostMapping("/Action/Insert")
