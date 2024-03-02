@@ -23,9 +23,6 @@ public class OptionData {
   // 科目
   public static String[] subjects = subjects();
 
-  // 適用
-  public static String[] applys = {"パ交", "リ交", "ト有", "ト無", "ト未", "失禁", "拒否"};
-
   // 利用状況
   public static String[] use = {"利用中", "利用終了"};
 
