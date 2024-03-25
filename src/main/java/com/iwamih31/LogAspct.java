@@ -57,5 +57,4 @@ public class LogAspct {
 		System.out.println(joinPoint.getSignature() + "終了");
 		System.out.println("");
 	}
-
 }
