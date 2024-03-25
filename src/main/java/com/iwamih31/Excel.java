@@ -32,7 +32,6 @@ public class Excel {
 
 	MissingCellPolicy cellPolicy = MissingCellPolicy.CREATE_NULL_AS_BLANK;
 
-
 	/** alignment_Pattern に応じてセルの alignment を設定 */
 	public CellStyle alignment_Apply(CellStyle cellStyle, String alignment_Pattern) {
 		if(alignment_Pattern != null) {
