@@ -609,6 +609,4 @@ public class AccountBookController {
 		model.addAttribute("req", req());
 		System.out.println("template = " + template);
 	}
-
-
 }
