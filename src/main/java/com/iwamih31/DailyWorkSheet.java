@@ -146,7 +146,6 @@ public class DailyWorkSheet extends WorkSheet{
 			row_Map.put("bg_color", array(bg_color));
 			row_Format.add(row_Map);
 		}
-
 		return row_Format;
 	}
 
