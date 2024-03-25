@@ -434,7 +434,6 @@ public class Excel {
 		return message;
 	}
 
-
 	private String with_Now(String head_String) {
 		String now = now().replaceAll("[^0-9]", ""); // 現在日時の数字以外を "" に変換
 //	String now = now().replaceAll("[^\\d]", "");  ←こちらでもOK
