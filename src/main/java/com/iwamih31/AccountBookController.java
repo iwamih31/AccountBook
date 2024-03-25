@@ -365,7 +365,6 @@ public class AccountBookController {
 		return redirect("/Daily?date=" + date);
 	}
 
-
 	@PostMapping("/OfficeReport")
 	public String officeReport() {
 		return "redirect:/CareRecord/RoutineReport";
