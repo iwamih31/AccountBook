@@ -26,7 +26,6 @@ public class LogAspct {
 	  System.out.println("");
 	}
 
-
 	// AOP実装（メソッドが実行される前に、Advice実行）
 	// クラス名の最後に"Service"が付くクラスの全てのメソッドをAOPの対象にする
 	@Before("execution(* *..*.*Service.*(..))")
