@@ -165,7 +165,6 @@ public class DailyWorkSheet extends WorkSheet{
 		this.sheet_Name = sheet_Name;
 	}
 
-
 	public int[] getColumn_Width() {
 		return column_Width;
 	}
