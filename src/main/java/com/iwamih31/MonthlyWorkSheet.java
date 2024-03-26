@@ -68,7 +68,6 @@ public class MonthlyWorkSheet extends WorkSheet{
 
 	/** 行毎の書式設定用 Map リスト */
 	public List<Map<String, String[]>> row_Format(int row_Size){
-
 		// 行毎の書式設定用データ配列格納用 Map リスト
 		List<Map<String, String[]>> row_Format = new ArrayList<>();
 		for (int i = 0; i < row_Size; i++) {
