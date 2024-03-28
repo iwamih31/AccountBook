@@ -99,8 +99,6 @@ public class WorkSheet {
 		return row_Format;
 	}
 
-
-
 	private String[] array(String value) {
 		return new String[] {value};
 	}
